@@ -2,12 +2,6 @@
 
 namespace Cache;
 
-/**
- * Wrapper realizujący cache współdzielony za pomocą memcached
- * @author Paweł Spychalski 2011
- * @see php memchache
- */
-
 class Memcached{
 
 	/**
@@ -31,12 +25,12 @@ class Memcached{
 	private $memcached = null;
 
 	/**
-	 * Obiekt klasy -> Singleton
+	 * @var Memcached
 	 */
 	private static $instance;
 
 	/**
-	 * Konstruktor statyczny
+	 * @return Memcached
 	 */
 	public static function getInstance(){
 		if (empty(self::$instance)) {
@@ -47,7 +41,6 @@ class Memcached{
 	}
 
 	/**
-	 * Cache wewnętrzny do współpracy check-get
 	 * @var array
 	 */
 	private $internalCache = array();
@@ -63,17 +56,9 @@ class Memcached{
 		$this->memcached->connect(self::$host, self::$port);
 	}
 
-	/**
-	 * Sprawdzenie, czy w cache znajduje się wpis
-	 *
-	 * @param string $module
-	 * @param string $property
-	 * @return boolean
-	 * //TODO allow CacheKey instance passing
-	 */
-	function check($module, $property) {
+	public function check(CacheKey $key) {
 
-		$tValue = $this->get($module, $property);
+		$tValue = $this->get($key);
 
 		if ($tValue === false) {
 			return false;
@@ -83,69 +68,38 @@ class Memcached{
 
 	}
 
-	/**
-	 * Pobranie wartości z cache
-	 *
-	 * @param string $module
-	 * @param string $property
-	 * @return mixed
-	 * //TODO allow CacheKey instance passing
-	 */
-	function get($module, $property) {
+	public function get(CacheKey $key) {
 
-		$tKey = $this->getKey($module, $property);
+		$sKey = $this->getKey($key);
 
-		if (!isset($this->internalCache[$tKey])) {
-			$this->internalCache[$tKey] = $this->memcached->get($tKey);
+		if (!isset($this->internalCache[$sKey])) {
+			$this->internalCache[$sKey] = $this->memcached->get($sKey);
 		}
 
-		return $this->internalCache[$tKey];
+		return $this->internalCache[$sKey];
 	}
 
-	/**
-	 * Wyczyszczenie konkretnego wpisu w cache
-	 *
-	 * @param string $module
-	 * @param string $property
-	 */
-	function clear($module, $property = null) {
-		$this->memcached->delete($this->getKey($module, $property));
+	function clear(CacheKey $key) {
+		$this->memcached->delete($this->getKey($key));
 	}
 
-	/**
-	 * Wyczyszczenie konkretnego modułu cache
-	 *
-	 * @param string $module
-	 * //TODO allow CacheKey instance passing
-	 */
-	function clearModule($module = null) {
-
+	public function clearModule(CacheKey $key) {
 		$this->memcached->flush();
-
 	}
-
-	/**
-	 * Wstawienei do cache
-	 *
-	 * @param string $module
-	 * @param string $property
-	 * @param mixed $value
-	 * @param int $sessionLength
-	 */
-	function set($module, $property, $value, $sessionLength = null) {
+	
+	public function set(CacheKey $key, $value, $sessionLength = null) {
 
 		if ($sessionLength == null) {
 			$sessionLength = $this->timeThreshold;
 		}
 
-		$this->memcached->set($this->getKey($module, $property), $value, $this->useZip, $sessionLength);
+		$this->memcached->set($this->getKey($key), $value, $this->useZip, $sessionLength);
 	}
 
 	/**
 	 * Wyczyszczenie wpisów zależnych od podanej klasy
 	 *
 	 * @param string $className
-	 * //TODO allow CacheKey instance passing
 	 */
 	public function clearClassCache($className = null) {
 
@@ -160,21 +114,12 @@ class Memcached{
 	}
 
 	/**
-	 * Zestawienie klucza
-	 * @param string $module
-	 * @param string $property
+	 * Setup key for memcached
+	 * @param CacheKey $key
 	 * @return string
 	 */
-	private function getKey($module, $property) {
-		return $module.'::'.$property;
-	}
-
-	/**
-	 * Pobranie statystyk memcached
-	 * @return array
-	 */
-	public function getStatistics() {
-		return $this->memcached->getStats();
+	private function getKey(CacheKey $key) {
+		return $key->getModule() . '::' . $key->getProperty();
 	}
 
 }

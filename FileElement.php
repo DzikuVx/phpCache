@@ -27,20 +27,6 @@ class FileElement{
 	protected $time = null;
 	
 	/**
-	 * Identyfikator użytkownika ustawiającego wpis
-	 *
-	 * @var int
-	 */
-	protected $userID = null;
-	
-	/**
-	 * Czy wpis uległ zmianie
-	 *
-	 * @var boolean
-	 */
-	protected $changed = false;
-	
-	/**
 	 * @return int
 	 */
 	public function getTime() {
@@ -52,8 +38,6 @@ class FileElement{
 	 * @param int $time
 	 */
 	public function setTime($time) {
-		
-		$this->changed = true;
 		$this->time = $time;
 	}
 	
@@ -69,43 +53,17 @@ class FileElement{
 	 * @param mixed $value
 	 */
 	public function setValue($value) {
-		
-		$this->changed = true;
-		
 		$this->value = $value;
 	}
 	
-	/**
-	 * Konstruktor
-	 *
-	 * @param mixed $value
-	 * @param int $time
-	 * @param int $userID
-	 * @param boolean $changed
-	 */
-	function __construct($value, $time, $userID = null, $changed = true) {
-		
+	function __construct($value, $time) {
 		$this->value = $value;
 		$this->time = $time;
-		$this->userID = $userID;
-		$this->changed = $changed;
 	}
 	
-	/**
-	 * Ustawienie wpisu
-	 *
-	 * @param mixed $value
-	 * @param int $time
-	 * @param int $userID
-	 */
-	public function set($value, $time, $userID = null) {
-		
-		if ($this->value != $value || $this->userID != $userID || $this->time != $time) {
-			$this->changed = true;
-		}
+	public function set($value, $time) {
 		$this->value = $value;
 		$this->time = $time;
-		$this->userID = $userID;
 	}
 
 }

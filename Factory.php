@@ -8,7 +8,7 @@ namespace Cache;
  * @author Paweł
  *
  */
-class Factory implements \Interfaces\Singleton {
+class Factory {
 
 	/**
 	 * Obiekt klasy cache

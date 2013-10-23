@@ -18,24 +18,29 @@ class CacheKey {
 	 * @param mixed $module
 	 * @param string $property
 	 */
-	public function __construct($module, $property) {
+	public function __construct($module, $property = null) {
+		$this->setModule($module);
+		$this->setProperty($property);
+	}
 
+	/**
+	 * Set module property
+	 * @param mixed $value
+	 */
+	public function setModule($value) {
 		if (is_object($module)) {
 			$this->module = get_class($module);
 		}else {
 			$this->module = (string) $module;
 		}
-
-		$this->property = (string) $property;
-
 	}
 
-	public function setModule($value) {
-		$this->module = $value;
-	}
-
+	/**
+	 * Set value property
+	 * @param string $value
+	 */
 	public function setProperty($value) {
-		$this->property = $value;
+		$this->property = (string) $value;
 	}
 
 	/**
