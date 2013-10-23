@@ -7,7 +7,7 @@ namespace Cache;
  * @author Paweł Spychalski 2013
  * @version 2.0.1 Alfa
  */
-class Apc implements \Interfaces\Singleton  {
+class Apc {
 
 	/**
 	 * Prefix nazw klucza
@@ -30,7 +30,6 @@ class Apc implements \Interfaces\Singleton  {
 	private static $gcMethod = 'access_time';
 
 	/**
-	 * Obiekt klasy -> Singleton
 	 * @var \Cache\Apc
 	 */
 	private static $instance;
