@@ -3,12 +3,10 @@
 namespace Cache;
 
 /**
- * Klasa realizująca cache współdzielony na pliku
+ * Shared cache over file system. 
+ * Precaution: rather should not be used. This is rather last resort
+ * @author pawel
  *
- * @author Paweł Spychalski <pawel@spychalski.info>
- * @see http://www.spychalski.info
- * @category Common
- * @version 0.9
  */
 class File{
 
@@ -69,11 +67,13 @@ class File{
 	private $useZip = true;
 
 	/**
-	 * Obiekt klasy -> Singleton
-	 * @var CacheOverFile
+	 * @var File
 	 */
 	private static $instance;
 
+	/**
+	 * @return File
+	 */
 	public static function getInstance(){
 		if (empty(self::$instance)) {
 			$className = __CLASS__;
@@ -82,26 +82,13 @@ class File{
 		return self::$instance;
 	}
 
-	/**
-	 * Destruktor
-	 *
-	 */
 	public function __destruct() {
-
 		$this->synchronize ();
 	}
 
-	/**
-	 * konstruktor
-	 *
-	 * @param int $userID
-	 */
 	private function __construct() {
-
-		$this->fileName = dirname ( __FILE__ ) . "/../../../userData/" . get_class () . '.sca';
-
+		$this->fileName = dirname ( __FILE__ ) . "/userData/" . get_class () . '.sca';
 		$this->load ();
-
 	}
 
 	/**
@@ -109,112 +96,106 @@ class File{
 	 */
 	private function load() {
 
-		try {
+		if (file_exists ( $this->fileName )) {
+			$tCounter = 0;
+			$tFile = fopen ( $this->fileName, 'r' );
 
-			if (file_exists ( $this->fileName )) {
-				$tCounter = 0;
-				$tFile = fopen ( $this->fileName, 'r' );
-
-				/*
-				 * Załóż blokadę na plik cache
-				 */
-				while ( ! flock ( $tFile, LOCK_SH ) ) {
-					usleep ( 5 );
-					$tCounter ++;
-					if ($tCounter == 100) {
-						return false;
-					}
+			/*
+			 * Załóż blokadę na plik cache
+			 */
+			while ( ! flock ( $tFile, LOCK_SH ) ) {
+				usleep ( 5 );
+				$tCounter ++;
+				if ($tCounter == 100) {
+					return false;
 				}
-
-				$tContent = fread ( $tFile, filesize ( $this->fileName ) );
-
-				if ($this->useZip) {
-					$tContent = gzuncompress ( $tContent );
-				}
-
-				$this->elements = unserialize ( $tContent );
-
-				flock ( $tFile, LOCK_UN );
-				fclose ( $tFile );
-
-				$tKeys = array_keys ( $this->elements );
-				foreach ( $tKeys as $tKey ) {
-					$this->maintenace ( $tKey );
-				}
-					
 			}
-		} catch ( Exception $e ) {
-			psDebug::cThrow ( null, $e, array ('display' => false, 'send' => true ) );
+
+			$tContent = fread ( $tFile, filesize ( $this->fileName ) );
+
+			if ($this->useZip) {
+				$tContent = gzuncompress ( $tContent );
+			}
+
+			$this->elements = unserialize ( $tContent );
+
+			flock ( $tFile, LOCK_UN );
+			fclose ( $tFile );
+
+			$tKeys = array_keys ( $this->elements );
+			foreach ( $tKeys as $tKey ) {
+				$this->maintenace ( $tKey );
+			}
+				
 		}
+			
 		return true;
 	}
 
 	/**
-	 * Synchronizacja cache z plikiem
+	 * Synchronize cache with file
 	 *
 	 * @return boolean
 	 */
 	function synchronize() {
 
-		try {
-			$tCounter = 0;
+		$tCounter = 0;
 
-			if ($this->changed) {
-				$tFile = fopen ( $this->fileName, 'a' );
+		if ($this->changed) {
+			$tFile = fopen ( $this->fileName, 'a' );
 
-				/*
-				 * Załóż blokadę na plik cache
-				 */
-				while ( ! flock ( $tFile, LOCK_EX ) ) {
-					usleep ( 5 );
-					$tCounter ++;
-					if ($tCounter == 100) {
-						return false;
-					}
+			/*
+			 * Załóż blokadę na plik cache
+			 */
+			while ( ! flock ( $tFile, LOCK_EX ) ) {
+				usleep ( 5 );
+				$tCounter ++;
+				if ($tCounter == 100) {
+					return false;
 				}
-
-				/*
-				 * Jeśli udało się założyć blokadę, zapisz elementy
-				 */
-				$tContent = serialize ( $this->elements );
-
-				ftruncate ( $tFile, 0 );
-
-				if ($this->useZip) {
-					$tContent = gzcompress ( $tContent );
-				}
-
-				fputs ( $tFile, $tContent );
-
-				flock ( $tFile, LOCK_UN );
-				fclose ( $tFile );
-				return true;
 			}
-		} catch ( Exception $e ) {
-			psDebug::cThrow ( null, $e, array ('display' => false, 'send' => true ) );
-			return false;
+
+			/*
+			 * Jeśli udało się założyć blokadę, zapisz elementy
+			 */
+			$tContent = serialize ( $this->elements );
+
+			ftruncate ( $tFile, 0 );
+
+			if ($this->useZip) {
+				$tContent = gzcompress ( $tContent );
+			}
+
+			fputs ( $tFile, $tContent );
+
+			flock ( $tFile, LOCK_UN );
+			fclose ( $tFile );
+			return true;
 		}
+			
 		return true;
 	}
 
 	/**
-	 * Oczyszczanie wybranego modułu
-	 *
-	 * @param string $module
-	 * @return boolean
+	 * Cache mainanace, removed old entries
+	 * @param CacheKey $key
 	 */
-	private function maintenace($module) {
+	private function maintenace(CacheKey $key) {
 
-		if (! isset ( $this->elements [$module] ))
-		return false;
+		$module = $key->getModule();
+		
+		if (! isset ( $this->elements [$module] )) {
+			return false;
+		}
 
 		if (! isset ( $_SESSION [$this->cacheMaintenanceTimeName] [$module] )) {
 			$_SESSION [$this->cacheMaintenanceTimeName] [$module] = time ();
 		}
 
 		//Sprawdz, czy wykonać czyszczenie
-		if (time () < $_SESSION [$this->cacheMaintenanceTimeName] [$module])
-		return false;
+		if (time () < $_SESSION [$this->cacheMaintenanceTimeName] [$module]) {
+			return false;
+		}
 			
 		//Ustaw czas następnego czyszczenia
 		$_SESSION [$this->cacheMaintenanceTimeName] [$module] = time () + $this->timeThreshold;
@@ -232,20 +213,16 @@ class File{
 		}
 
 		return true;
-
 	}
 
 	/**
-	 * Sprawdzenie, czy w cache znajduje się wpis
-	 *
-	 * @param string $module
-	 * @param string $property
+	 * Check is cache entry is set
+	 * @param CacheKey $key
 	 * @return boolean
-	 * //TODO allow CacheKey instance passing
 	 */
-	function check($module, $property) {
+	function check(CacheKey $key) {
 
-		if (isset ( $this->elements [$module] [$property] )) {
+		if (isset ( $this->elements [$key->getModule()] [$key->getProperty()] )) {
 			return true;
 		} else {
 			return false;
@@ -253,17 +230,14 @@ class File{
 	}
 
 	/**
-	 * Pobranie wartości z cache
-	 *
-	 * @param string $module
-	 * @param string $property
+	 * Get value from cache or null when not set
+	 * @param CacheKey $key
 	 * @return mixed
-	 * //TODO allow CacheKey instance passing
 	 */
-	function get($module, $property) {
+	public function get(CacheKey $key) {
 
-		if (isset ( $this->elements [$module] [$property] )) {
-			$tValue = $this->elements [$module] [$property]->getValue ();
+		if (isset ( $this->elements [$key->getModule()] [$key->getProperty()] )) {
+			$tValue = $this->elements [$key->getModule()] [$key->getProperty()]->getValue ();
 			return $tValue;
 		} else {
 			return NULL;
@@ -271,46 +245,34 @@ class File{
 	}
 
 	/**
-	 * Wyczyszczenie konkretnego wpisu w cache
-	 *
-	 * @param string $module
-	 * @param string $property
-	 * //TODO allow CacheKey instance passing
+	 * Unset cache value
+	 * @param CacheKey $key
 	 */
-	function clear($module, $property) {
+	public function clear(CacheKey $key) {
+		if (isset ( $this->elements [$key->getModule()] [$key->getProperty()] )) {
+			unset ( $this->elements [$key->getModule()] [$key->getProperty()] );
+			$this->changed = true;
+		}
+	}
 
-		if (isset ( $this->elements [$module] [$property] )) {
-			unset ( $this->elements [$module] [$property] );
+	/**
+	 * Clear whole module and all it's properties
+	 * @param CacheKey $key
+	 */
+	function clearModule(CacheKey $key) {
+
+		if (isset ( $this->elements [$key->getModule()] )) {
+			unset ( $this->elements [$key->getModule()] );
 			$this->changed = true;
 		}
 
 	}
 
-	/**
-	 * Wyczyszczenie konkretnego modułu cache
-	 *
-	 * @param string $module
-	 */
-	function clearModule($module) {
+	public function set(CacheKey $key, $value, $sessionLength = null) {
 
-		if (isset ( $this->elements [$module] )) {
-			unset ( $this->elements [$module] );
-			$this->changed = true;
-		}
-
-	}
-
-	/**
-	 * Wstawienei do cache
-	 *
-	 * @param string $module
-	 * @param string $property
-	 * @param mixed $value
-	 * @param int $sessionLength
-	 * //TODO allow CacheKey instance passing
-	 */
-	function set($module, $property, $value, $sessionLength = null) {
-
+		$module 	= $key->getModule();
+		$property 	= $key->getProperty();
+		
 		if ($sessionLength == null) {
 			$sessionLength = $this->timeThreshold;
 		}
@@ -347,48 +309,10 @@ class File{
 	}
 
 	/**
-	 * Oczyszczenie wszystkich wpisów w cache
-	 *
-	 */
-	private function globalMaintnance() {
-
-		$tKeys = array_keys ( $this->elements );
-		foreach ( $tKeys as $tKey ) {
-			$this->maintenace ( $tKey );
-		}
-
-	}
-
-	/**
-	 * Pobranie łącznej liczby modułów
-	 */
-	public function getCount() {
-		return count($this->elements);
-	}
-
-	/**
-	 * Pobranie łączniej liczby wpisów
-	 */
-	public function getTotalCount() {
-
-		$retVal = $this->getCount();
-
-		foreach ($this->elements as $tElement) {
-			$retVal += count($tElement);
-		}
-
-		return $retVal;
-	}
-
-	/**
 	 * Oczyszczenie całego cache
 	 */
 	public function clearAll() {
 		$this->elements = array();
-	}
-
-	public function debug() {
-		\psDebug::print_r($this->elements);
 	}
 
 }
