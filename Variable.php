@@ -3,21 +3,26 @@
 namespace Cache;
 
 /**
- * Klasa cache dla słowników
- * Zapis znajduje się w pamięci, nie jest przechowywany pomiędzy wywołaniami skryptu
+ * Entries are stored in an PHP variable. They are not available between requests
  */
-class Variable{
-	private $cache = array ();
-	private $cacheCount = 0;
-	private $maxCount = 100;
+class Variable {
 
+	/**
+	 * @var array
+	 */
+	private $cache = array ();
+
+	/**
+	 * @var Variable
+	 */
 	private static $instance;
 
 	public function clearAll() {
 	}
-	
+
 	/**
-	 * Konstruktor statyczny
+	 * 
+	 * @return \Cache\Variable
 	 */
 	public static function getInstance(){
 		if (empty(self::$instance)) {
@@ -27,40 +32,31 @@ class Variable{
 		return self::$instance;
 	}
 
-	/**
-	 * Konstruktor
-	 * @param $maxCount maks długość cache
-	 */
 	private function __construct() {
 	}
 
 	/**
-	 * Wstawienie pozycji do cache
-	 * @param $module
-	 * @param $property
-	 * @param $value
+	 * Set cache value
+	 *
+	 * @param CacheKey $key
+	 * @param mixed $value
+	 * @param int $sessionLength
 	 */
-	function set($module, $property, $value) {
+	public function set(CacheKey $key, $value, $sessionLength = null) {
 
-		if (! isset ( $this->cache [$module] [$property] )) {
-			$this->cacheCount += 1;
-		}
-
-		//Wstaw wartość cache
-		$this->cache [$module] [$property] = $value;
+		$this->cache [$key->getModule()] [$key->getProperty()] = $value;
 
 		return true;
 	}
 
 	/**
-	 * Sprawdzenie, czy istnieje wpis w cache
-	 * @param $module
-	 * @param $property
+	 * Check if cache entry exist
+	 * @param CacheKey $key
 	 * @return boolean
 	 */
-	function check($module, $property) {
+	public function check(CacheKey $key) {
 
-		if (isset ( $this->cache [$module] [$property] )) {
+		if (isset ($this->cache [$key->getModule()] [$key->getProperty()])) {
 			return true;
 		} else {
 			return false;
@@ -68,30 +64,25 @@ class Variable{
 	}
 
 	/**
-	 * Pobranie pozycji z  cache
-	 * @param $module
-	 * @param $property
-	 * @return wartość
+	 * Get cache value
+	 * @param CacheKey $key
+	 * @return mixed
 	 */
-	function get($module, $property) {
+	public function get(CacheKey $key) {
 
-		if (isset ( $this->cache [$module] [$property] )) {
-			$tTemp = $this->cache [$module] [$property];
-			return $tTemp;
+		if (isset ( $this->cache [$key->getModule()] [$key->getProperty()] )) {
+			return $this->cache [$key->getModule()] [$key->getProperty()];
 		} else {
 			return null;
 		}
 	}
 
-	public function clear($module, $property) {
-		return true;
-	}
-
 	/**
-	 * Wyświetla tablicę cache
+	 * Unset cache value
+	 * @param CacheKey $key
 	 */
-	function debug() {
-
-		\psDebug::print_r ( $this->cache );
+	public function clear(CacheKey $key) {
+		unset($this->cache [$key->getModule()] [$key->getProperty()]);
 	}
+
 }

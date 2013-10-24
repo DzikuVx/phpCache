@@ -80,7 +80,7 @@ class Apc {
 	private $timeThreshold = 7200;
 
 	/**
-	 * Sprawdzenie, czy w cache znajduje się wpis
+	 * Check if cache entry exist
 	 * @param CacheKey $key
 	 * @return boolean
 	 */
@@ -96,7 +96,7 @@ class Apc {
 	}
 
 	/**
-	 * Pobranie wartości z cache
+	 * Get cache value
 	 * @param CacheKey $key
 	 * @return mixed
 	 */
@@ -108,8 +108,7 @@ class Apc {
 	}
 
 	/**
-	 * Wyczyszczenie konkretnego wpisu w cache
-	 *
+	 * Unset cache value
 	 * @param CacheKey $key
 	 */
 	public function clear(CacheKey $key) {
@@ -139,7 +138,7 @@ class Apc {
 	}
 
 	/**
-	 * Wstawienei do cache
+	 * Set cache value
 	 *
 	 * @param CacheKey $key
 	 * @param mixed $value

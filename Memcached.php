@@ -79,6 +79,10 @@ class Memcached{
 		return $this->internalCache[$sKey];
 	}
 
+	/**
+	 * Unset cache value
+	 * @param CacheKey $key
+	 */
 	function clear(CacheKey $key) {
 		$this->memcached->delete($this->getKey($key));
 	}
