@@ -11,68 +11,143 @@ namespace Cache;
 class Factory {
 
 	/**
-	 * Obiekt klasy cache
-	 * @var mixed
+	 * Name of default caching mechanism
+	 * @var string
 	 */
-	private static $cacheInstance;
-
+	public static $sDefaultMechanism = 'Apc';
+	
 	/**
-	 * Konstruktor prywatny
+	 * Array of registered and available caching mechanisms
+	 * @var array
+	 */
+	private $aRegisteredMechanisms = array('Apc', 'File', 'Memcached', 'Session', 'Variable');
+	
+	/**
+	 * Array of caching method objects
+	 * @var array
+	 */
+	private $aCacheInstance = array();
+
+	private static $instance;
+	
+	/**
+	 * Private contructor
 	 */
 	private function __construct() {
 
 	}
 
-	/*
-	 * Metoda tworząca obiekt cache
+	/**
+	 * Create and return caching mechanism object according to passed name
+	 * @param string $sMethod
+	 * @return multitype:Apc,File,Memcached,Session,Variable
 	 */
-	static private function create() {
-
+	public function create($sMethod = null) {
 		
-		if (empty(self::$cacheInstance)) {
-
-			$sCachingMethod = \General\Config::getInstance()->get('cacheMethod');
-
-			if ($sCachingMethod === 'apc' && !(extension_loaded('apc') && ini_get('apc.enabled'))) {
-				$sCachingMethod = 'Mem';
-			}
-			
-			switch ($sCachingMethod) {
-
-				case 'Apc':
-					self::$cacheInstance = Apc::getInstance();
-					break;
-
-				case 'Memcached':
-					self::$cacheInstance = Memcached::getInstance();
-					break;
-				
-				default:
-					self::$cacheInstance = Variable::getInstance();
-					break;
-				
-			}
-			
+		/*
+		 * If no method passed, use default
+		 */
+		if (empty($sMethod)) {
+			$sMethod = self::$sDefaultMechanism;
 		}
 
+		/*
+		 * check if passed name is an registered method
+		 */
+		if (array_search($sMethod, $this->aRegisteredMechanisms) === false) {
+			throw new \Exception('Unknown caching mechanism');
+		}
+		
+		/*
+		 * If caching mechnism not initialisem, create new
+		 */
+		if (!isset($this->aCacheInstance[$sMethod])) {
+			
+			require_once dirname ( __FILE__ ) . '/' . $sMethod . '.php';
+			
+			$sClassName = '\Cache\\' . $sMethod;
+			
+			$this->aCacheInstance[$sMethod] = $sClassName::getInstance();
+			
+		} 
+		
+		return $this->aCacheInstance[$sMethod];
 	}
 
 	/**
-	 * Pobranie obiektu klasy cacheującej
-	 * @throws Exception
-	 * @return Memcached
+	 * get factory instance
+	 * @return Factory
 	 */
 	static public function getInstance() {
 
-		if (empty(self::$cacheInstance)) {
-			self::create();
+		if (empty(self::$instance)) {
+			self::$instance = new self();
 		}
 
-		if (empty(self::$cacheInstance)) {
-			throw new \Exception('Cache object is not initialized');
-		}
-
-		return self::$cacheInstance;
+		return self::$instance;
 	}
 
+}
+
+/**
+ * 
+ * Class providing caching key functionality
+ * 
+ * @author pawel
+ *
+ */
+class CacheKey {
+
+	/**
+	 * @var string
+	 */
+	private $module = '';
+
+	/**
+	 * @var string
+	 */
+	private $property = '';
+
+	/**
+	 * @param mixed $module
+	 * @param string $property
+	 */
+	public function __construct($module, $property = null) {
+		$this->setModule($module);
+		$this->setProperty($property);
+	}
+
+	/**
+	 * Set module property
+	 * @param mixed $value
+	 */
+	public function setModule($value) {
+		if (is_object($module)) {
+			$this->module = get_class($module);
+		}else {
+			$this->module = (string) $module;
+		}
+	}
+
+	/**
+	 * Set value property
+	 * @param string $value
+	 */
+	public function setProperty($value) {
+		$this->property = (string) $value;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getModule() {
+		return $this->module;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getProperty() {
+		return $this->property;
+	}
 }

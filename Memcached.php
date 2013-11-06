@@ -45,7 +45,7 @@ class Memcached{
 	 */
 	private $internalCache = array();
 
-	static public $host = '192.168.2.99';
+	static public $host = '127.0.0.1';
 	static public $port = 11211;
 
 	/**

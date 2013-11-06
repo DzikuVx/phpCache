@@ -38,7 +38,7 @@ class Apc {
 	 * Konstruktor statyczny
 	 * @return \Cache\Apc
 	 */
-	public static function getInstance(){
+	public static function getInstance() {
 		if (empty(self::$instance)) {
 			$className = __CLASS__;
 			self::$instance = new $className;
@@ -58,6 +58,7 @@ class Apc {
 	 * Konstruktor prywatny
 	 */
 	private function __construct() {
+		
 		if (time() - $this->getGcRunTime() > self::$gcTimeThreshold) {
 			$this->setGcRunTime();
 			$this->garbageCollector();
