@@ -131,13 +131,7 @@ class Session {
 		$this->currentSize += 1;
 	}
 
-	/**
-	 * Czyszczenie pozycji cache
-	 *
-	 * @param string $module
-	 * @param string $id
-	 */
-	function clear(CacheKey $key) {
+	public function clear(CacheKey $key) {
 		
 		$module = $key->getModule();
 		$id		= $key->getProperty();
@@ -148,4 +142,9 @@ class Session {
 			unset ( $_SESSION [$this->cacheName] [$module] );
 		}
 	}
+	
+	public function clearAll() {
+		$_SESSION [$this->cacheName] = array();
+	}
+	
 }
