@@ -122,10 +122,10 @@ class CacheKey {
 	 * @param mixed $value
 	 */
 	public function setModule($value) {
-		if (is_object($module)) {
-			$this->module = get_class($module);
+		if (is_object($value)) {
+			$this->module = get_class($value);
 		}else {
-			$this->module = (string) $module;
+			$this->module = (string) $value;
 		}
 	}
 

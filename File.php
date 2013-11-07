@@ -124,7 +124,7 @@ class File{
 
 			$tKeys = array_keys ( $this->elements );
 			foreach ( $tKeys as $tKey ) {
-				$this->maintenace ( $tKey );
+				$this->maintenace ( new CacheKey($tKey) );
 			}
 				
 		}

@@ -5,23 +5,13 @@ namespace Cache;
 class Memcached{
 
 	/**
-	 * Domyślny czas ważności cache [s]
-	 *
-	 * @var int
+	 * key prefix
+	 * @var string
 	 */
+	static private $sCachePrefix = 'phpCache';
+	
 	private $timeThreshold = 7200;
 
-	/**
-	 * Czy dokonuwać kompresji pliku cache
-	 *
-	 * @var boolean
-	 */
-	private $useZip = false;
-
-	/**
-	 * Obiekt memcached
-	 * @var Memcache
-	 */
 	private $memcached = null;
 
 	/**
@@ -48,16 +38,13 @@ class Memcached{
 	static public $host = '127.0.0.1';
 	static public $port = 11211;
 
-	/**
-	 * Konstruktor
-	 */
 	private function __construct() {
 		$this->memcached = new \Memcache();
 		$this->memcached->connect(self::$host, self::$port);
 	}
 
 	public function check(CacheKey $key) {
-
+		
 		$tValue = $this->get($key);
 
 		if ($tValue === false) {
@@ -69,14 +56,7 @@ class Memcached{
 	}
 
 	public function get(CacheKey $key) {
-
-		$sKey = $this->getKey($key);
-
-		if (!isset($this->internalCache[$sKey])) {
-			$this->internalCache[$sKey] = $this->memcached->get($sKey);
-		}
-
-		return $this->internalCache[$sKey];
+		return $this->memcached->get($this->getKey($key));
 	}
 
 	/**
@@ -97,22 +77,13 @@ class Memcached{
 			$sessionLength = $this->timeThreshold;
 		}
 
-		$this->memcached->set($this->getKey($key), $value, $this->useZip, $sessionLength);
+		$this->memcached->set($this->getKey($key), $value, null, $sessionLength);
 	}
 
-	/**
-	 * Wyczyszczenie wpisów zależnych od podanej klasy
-	 *
-	 * @param string $className
-	 */
 	public function clearClassCache($className = null) {
-
 		$this->memcached->flush();
 	}
 
-	/**
-	 * Oczyszczenie całego cache
-	 */
 	public function clearAll() {
 		$this->memcached->flush();
 	}
@@ -123,7 +94,7 @@ class Memcached{
 	 * @return string
 	 */
 	private function getKey(CacheKey $key) {
-		return $key->getModule() . '::' . $key->getProperty();
+		return self::$sCachePrefix.'__' . $key->getModule() . '||' . $key->getProperty();
 	}
 
 }

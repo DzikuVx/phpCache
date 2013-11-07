@@ -99,7 +99,7 @@ class Session {
 		
 		if (isset ( $_SESSION [$this->cacheName] [$module] [$id] )) {
 			$tValue = $_SESSION [$this->cacheName] [$module] [$id] ['value'];
-			$this->maintenace ( $module );
+			$this->maintenace($key);
 			return $tValue;
 		} else {
 			return NULL;

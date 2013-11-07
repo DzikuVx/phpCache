@@ -5,15 +5,15 @@ namespace Cache;
 /**
  * Wrapper realizujący cache współdzielony za pomocą APC
  * @author Paweł Spychalski 2013
- * @version 2.0.1 Alfa
+ * @version 2.0.2
  */
 class Apc {
 
 	/**
-	 * Prefix nazw klucza
+	 * key prefix
 	 * @var string
 	 */
-	static private $sCachePrefix = 'apc';
+	static private $sCachePrefix = 'phpCache';
 
 	/**
 	 * @var int
@@ -21,11 +21,8 @@ class Apc {
 	static private $gcTimeThreshold = 30;
 
 	/**
-	 * Typ Garbage Collectora
-	 * @var string
-	 * access_time
-	 * mtime
-	 * creation_time
+	 * Garbage Collectora type
+	 * @var string [access_time,mtime,creation_time]
 	 */
 	private static $gcMethod = 'access_time';
 
@@ -34,10 +31,6 @@ class Apc {
 	 */
 	private static $instance;
 
-	/**
-	 * Konstruktor statyczny
-	 * @return \Cache\Apc
-	 */
 	public static function getInstance() {
 		if (empty(self::$instance)) {
 			$className = __CLASS__;
