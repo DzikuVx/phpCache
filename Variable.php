@@ -73,7 +73,7 @@ class Variable {
 		if (isset ( $this->cache [$key->getModule()] [$key->getProperty()] )) {
 			return $this->cache [$key->getModule()] [$key->getProperty()];
 		} else {
-			return null;
+			return false;
 		}
 	}
 

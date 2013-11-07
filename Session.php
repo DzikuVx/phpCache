@@ -102,7 +102,7 @@ class Session {
 			$this->maintenace($key);
 			return $tValue;
 		} else {
-			return NULL;
+			return false;
 		}
 	}
 

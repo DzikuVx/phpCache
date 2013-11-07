@@ -240,7 +240,7 @@ class File{
 			$tValue = $this->elements [$key->getModule()] [$key->getProperty()]->getValue ();
 			return $tValue;
 		} else {
-			return NULL;
+			return false;
 		}
 	}
 
