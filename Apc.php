@@ -1,6 +1,6 @@
 <?php
 
-namespace Cache;
+namespace phpCache;
 
 /**
  * Wrapper realizujący cache współdzielony za pomocą APC
@@ -27,7 +27,7 @@ class Apc {
 	private static $gcMethod = 'access_time';
 
 	/**
-	 * @var \Cache\Apc
+	 * @var \phpCache\Apc
 	 */
 	private static $instance;
 

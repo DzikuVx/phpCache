@@ -1,6 +1,6 @@
 <?php
 
-namespace Cache;
+namespace phpCache;
 
 $bSuccess = true;
 
@@ -122,6 +122,13 @@ foreach ($aRegisteredMechanisms as $sMethod) {
 			echo "{$sMethod} check cleared key #{$iIndex}: OK\n";
 		} else {
 			echo "{$sMethod} check cleared key #{$iIndex}: FAILED\n";
+			$bSuccess = false;
+		}
+		
+		if ($oCache->get($oKey) === false) {
+			echo "{$sMethod} get cleared key #{$iIndex}: OK\n";
+		} else {
+			echo "{$sMethod} get cleared key #{$iIndex}: FAILED\n";
 			$bSuccess = false;
 		}
 		

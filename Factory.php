@@ -1,6 +1,6 @@
 <?php
 
-namespace Cache;
+namespace phpCache;
 
 /**
  * Kontroler cache
@@ -65,7 +65,7 @@ class Factory {
 			
 			require_once dirname ( __FILE__ ) . '/' . $sMethod . '.php';
 			
-			$sClassName = '\Cache\\' . $sMethod;
+			$sClassName = '\phpCache\\' . $sMethod;
 			
 			$this->aCacheInstance[$sMethod] = $sClassName::getInstance();
 			
