@@ -132,7 +132,7 @@ foreach ($aRegisteredMechanisms as $sMethod) {
 		}
 		
 		//Test arrays
-		$aSetValue = array(1 => 'This is 1', 'key' => 'This is key');
+		$aSetValue = array(1 => 2, 'key' => 'This is key');
 		
 		$oCache->set($oKey, $aSetValue);
 		echo "{$sMethod} set key for array #{$iIndex}: OK\n";
@@ -145,6 +145,55 @@ foreach ($aRegisteredMechanisms as $sMethod) {
 			echo "{$sMethod} get array key #{$iIndex}: FAILED\n";
 			$bSuccess = false;
 		}
+		
+		if ($aGet[1] === 2) {
+			echo "{$sMethod} get array Integer element #{$iIndex}: OK\n";
+		} else {
+			echo "{$sMethod} get array Integer element #{$iIndex}: FAILED\n";
+			$bSuccess = false;
+		}
+		
+		if ($aGet['key'] === 'This is key') {
+			echo "{$sMethod} get array String element #{$iIndex}: OK\n";
+		} else {
+			echo "{$sMethod} get array String element #{$iIndex}: FAILED\n";
+			$bSuccess = false;
+		}
+		
+		$oCache->clear($oKey);
+		
+		//Test stdClass
+		$aSetValue = new \stdClass();
+		$aSetValue->key1 = 2;
+		$aSetValue->key2 = 'This is key';
+		
+		$oCache->set($oKey, $aSetValue);
+		echo "{$sMethod} set key for stdClass #{$iIndex}: OK\n";
+		
+		$aGet = $oCache->get($oKey);
+		
+		if (!empty($aGet) && is_object($aGet)) {
+			echo "{$sMethod} get stdClass #{$iIndex}: OK\n";
+		} else {
+			echo "{$sMethod} get stdClass #{$iIndex}: FAILED\n";
+			$bSuccess = false;
+		}
+		
+		if ($aGet->key1 === 2) {
+			echo "{$sMethod} get stdClass Integer element #{$iIndex}: OK\n";
+		} else {
+			echo "{$sMethod} get stdClass Integer element #{$iIndex}: FAILED\n";
+			$bSuccess = false;
+		}
+		
+		if ($aGet->key2 === 'This is key') {
+			echo "{$sMethod} get stdClass String element #{$iIndex}: OK\n";
+		} else {
+			echo "{$sMethod} get stdClass String element #{$iIndex}: FAILED\n";
+			$bSuccess = false;
+		}
+		
+		$oCache->clear($oKey);
 		
 	}
 	
