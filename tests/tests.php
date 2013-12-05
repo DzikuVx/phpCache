@@ -89,6 +89,7 @@ foreach ($aRegisteredMechanisms as $sMethod) {
 	
 	foreach ($aKeys as $iIndex => $oKey) {
 
+		//Test simple values
 		if ($oCache->check($oKey) === false) {
 			echo "{$sMethod} check empty key #{$iIndex}: OK\n";
 		} else {
@@ -103,7 +104,6 @@ foreach ($aRegisteredMechanisms as $sMethod) {
 			echo "{$sMethod} check not empty key #{$iIndex}: OK\n";
 		} else {
 			echo "{$sMethod} check not empty key #{$iIndex}: FAILED : ";
-			var_dump($oCache->check($oKey));
 			$bSuccess = false;
 		}
 		
@@ -111,7 +111,6 @@ foreach ($aRegisteredMechanisms as $sMethod) {
 			echo "{$sMethod} get not empty key #{$iIndex}: OK\n";
 		} else {
 			echo "{$sMethod} get not empty key #{$iIndex}: FAILED : ";
-			var_dump($oCache->get($oKey));
 			$bSuccess = false;
 		}
 		
@@ -129,6 +128,21 @@ foreach ($aRegisteredMechanisms as $sMethod) {
 			echo "{$sMethod} get cleared key #{$iIndex}: OK\n";
 		} else {
 			echo "{$sMethod} get cleared key #{$iIndex}: FAILED\n";
+			$bSuccess = false;
+		}
+		
+		//Test arrays
+		$aSetValue = array(1 => 'This is 1', 'key' => 'This is key');
+		
+		$oCache->set($oKey, $aSetValue);
+		echo "{$sMethod} set key for array #{$iIndex}: OK\n";
+		
+		$aGet = $oCache->get($oKey);
+		
+		if (!empty($aGet) && is_array($aGet)) {
+			echo "{$sMethod} get array key #{$iIndex}: OK\n";
+		} else {
+			echo "{$sMethod} get array key #{$iIndex}: FAILED\n";
 			$bSuccess = false;
 		}
 		
