@@ -41,7 +41,7 @@ class Factory {
 	 * Create and return caching mechanism object according to passed name
 	 * @param string $sMethod
 	 * @return Apc,File,Memcached,Session,Variable
-     * @throws \Exception
+     * @throws Exception
 	 */
 	public function create($sMethod = null) {
 		
@@ -56,7 +56,7 @@ class Factory {
 		 * check if passed name is an registered method
 		 */
 		if (array_search($sMethod, $this->aRegisteredMechanisms) === false) {
-			throw new \Exception('Unknown caching mechanism');
+			throw new Exception('Unknown caching mechanism');
 		}
 		
 		/*
@@ -151,4 +151,8 @@ class CacheKey {
 	public function getProperty() {
 		return $this->property;
 	}
+}
+
+class Exception extends \Exception {
+
 }
