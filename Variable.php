@@ -41,8 +41,10 @@ class Variable {
 	 * @param CacheKey $key
 	 * @param mixed $value
 	 * @param int $sessionLength
+     * @return bool
 	 */
-	public function set(CacheKey $key, $value, $sessionLength = null) {
+	public function set(CacheKey $key, $value, /** @noinspection PhpUnusedParameterInspection */
+                        $sessionLength = null) {
 
 		$this->cache [$key->getModule()] [$key->getProperty()] = $value;
 

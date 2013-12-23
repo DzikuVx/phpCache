@@ -40,7 +40,8 @@ class Factory {
 	/**
 	 * Create and return caching mechanism object according to passed name
 	 * @param string $sMethod
-	 * @return multitype:Apc,File,Memcached,Session,Variable
+	 * @return Apc,File,Memcached,Session,Variable
+     * @throws \Exception
 	 */
 	public function create($sMethod = null) {
 		
@@ -59,7 +60,7 @@ class Factory {
 		}
 		
 		/*
-		 * If caching mechnism not initialisem, create new
+		 * If caching mechanism not initialised, create new
 		 */
 		if (!isset($this->aCacheInstance[$sMethod])) {
 			

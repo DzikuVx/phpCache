@@ -3,7 +3,7 @@
 namespace phpCache;
 
 /**
- * Wrapper realizujący cache współdzielony za pomocą APC
+ * APC wrapper
  * @author Paweł Spychalski 2013
  * @version 2.0.2
  */
@@ -67,7 +67,7 @@ class Apc {
 	}
 
 	/**
-	 * Domyślny czas ważności cache [s]
+	 * Default cache validity time [s]
 	 *
 	 * @var int
 	 */

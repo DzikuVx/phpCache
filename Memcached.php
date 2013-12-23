@@ -30,11 +30,6 @@ class Memcached{
 		return self::$instance;
 	}
 
-	/**
-	 * @var array
-	 */
-	private $internalCache = array();
-
 	static public $host = '127.0.0.1';
 	static public $port = 11211;
 
@@ -67,7 +62,8 @@ class Memcached{
 		$this->memcached->delete($this->getKey($key));
 	}
 
-	public function clearModule(CacheKey $key) {
+	public function clearModule(/** @noinspection PhpUnusedParameterInspection */
+        CacheKey $key) {
 		$this->memcached->flush();
 	}
 	
@@ -80,7 +76,8 @@ class Memcached{
 		$this->memcached->set($this->getKey($key), $value, null, $sessionLength);
 	}
 
-	public function clearClassCache($className = null) {
+	public function clearClassCache(/** @noinspection PhpUnusedParameterInspection */
+        $className = null) {
 		$this->memcached->flush();
 	}
 
