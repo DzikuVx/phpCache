@@ -3,10 +3,9 @@
 namespace phpCache;
 
 /**
- * Kontroler cache
+ * Cache method factory
  * Static
  * @author Paweł
- *
  */
 class Factory {
 
@@ -31,11 +30,18 @@ class Factory {
 	private static $instance;
 	
 	/**
-	 * Private contructor
+	 * Private constructor
 	 */
 	private function __construct() {
 
 	}
+
+    /**
+     * Private __clone magic method
+     */
+    private function __clone() {
+
+    }
 
 	/**
 	 * Create and return caching mechanism object according to passed name
@@ -63,12 +69,14 @@ class Factory {
 		 * If caching mechanism not initialised, create new
 		 */
 		if (!isset($this->aCacheInstance[$sMethod])) {
-			
-			require_once dirname ( __FILE__ ) . '/' . $sMethod . '.php';
+
+            /** @noinspection PhpIncludeInspection */
+            require_once dirname ( __FILE__ ) . '/' . $sMethod . '.php';
 			
 			$sClassName = '\phpCache\\' . $sMethod;
-			
-			$this->aCacheInstance[$sMethod] = $sClassName::getInstance();
+
+            /** @noinspection PhpUndefinedMethodInspection */
+            $this->aCacheInstance[$sMethod] = $sClassName::getInstance();
 			
 		} 
 		

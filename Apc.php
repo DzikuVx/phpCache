@@ -21,13 +21,13 @@ class Apc {
 	static private $gcTimeThreshold = 30;
 
 	/**
-	 * Garbage Collectora type
+	 * Garbage Collector type
 	 * @var string [access_time,mtime,creation_time]
 	 */
 	private static $gcMethod = 'access_time';
 
 	/**
-	 * @var \phpCache\Apc
+	 * @var Apc
 	 */
 	private static $instance;
 
@@ -40,18 +40,14 @@ class Apc {
 	}
 
 	/**
-	 * Ustawienie prefixu na nazwy klucza
+	 * Set key prefix
 	 * @param string $prefix
 	 */
 	static public function sSetPrefix($prefix) {
 		self::$sCachePrefix = $prefix;
 	}
 
-	/**
-	 * Konstruktor prywatny
-	 */
 	private function __construct() {
-		
 		if (time() - $this->getGcRunTime() > self::$gcTimeThreshold) {
 			$this->setGcRunTime();
 			$this->garbageCollector();
@@ -59,7 +55,6 @@ class Apc {
 	}
 
 	/**
-	 * Poprawnie prefixu nazw klucza
 	 * @return string
 	 */
 	static public function sGetPrefix() {
@@ -110,8 +105,6 @@ class Apc {
 	}
 
 	/**
-	 * Wyczyszczenie konkretnego modułu cache
-	 *
 	 * @param CacheKey $key
 	 */
 	public function clearModule(CacheKey $key) {
@@ -167,7 +160,7 @@ class Apc {
 	}
 
 	/**
-	 * Garbage collector niszczący wpisy o dacie starszej niż zakładany okres
+	 * Garbage collector
 	 */
 	private function garbageCollector() {
 		$iterator = new \APCIterator('user');
@@ -182,8 +175,6 @@ class Apc {
 	}
 
 	/**
-	 * Wyczyszczenie wpisów zależnych od podanej klasy
-	 *
 	 * @param string $className
 	 */
 	public function clearClassCache($className = null) {
@@ -210,15 +201,11 @@ class Apc {
 		apc_clear_cache('opcode');
 	}
 	
-	/**
-	 * Oczyszczenie całego cache
-	 */
 	public function clearAll() {
 		apc_clear_cache('user');
 	}
 
 	/**
-	* Zestawienie klucza
 	* @param CacheKey $key
 	* @return string
 	*/

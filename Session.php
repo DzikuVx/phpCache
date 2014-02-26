@@ -6,7 +6,6 @@ namespace phpCache;
  * @deprecated
  */
 class Session {
-	private $size;
 	private $currentSize = 0;
 	private $timeThreshold = 60;
 	private $cacheName = 'cache';
@@ -27,8 +26,13 @@ class Session {
 		}
 		return self::$instance;
 	}
-	
-	private function maintenace(CacheKey $key) {
+
+    /**
+     * Cache maintenance, remove old entries
+     * @param CacheKey $key
+     * @return bool
+     */
+    private function maintenance(CacheKey $key) {
 
 		$module = $key->getModule();
 		
@@ -36,21 +40,16 @@ class Session {
 			return false;
 		}
 			
-		//Sprawdz, czy wykonać czyszczenie
 		if (time () < $_SESSION [$this->cacheMaintenanceTimeName] [$module]) {
 			return false;
 		}
 			
-		//Ustaw czas następnego czyszczenia
 		$_SESSION [$this->cacheMaintenanceTimeName] [$module] = time () + $this->timeThreshold;
 
-		//Pobierz wszystkie klucze w module
 		$keys = array_keys ( $_SESSION [$this->cacheName] [$module] );
 
-		//Wykonaj pętlę po kluczach
 		foreach ( $keys as $value ) {
-			//Oczyść przeterminowane klucze
-			if (time () > $_SESSION [$this->cacheName] [$module] [$value] ['time']) {
+			if (time() > $_SESSION [$this->cacheName] [$module] [$value] ['time']) {
 				unset ( $_SESSION [$this->cacheName] [$module] [$value] );
 			}
 		}
@@ -72,16 +71,7 @@ class Session {
 		$this->timeThreshold = $timeThreshold;
 	}
 
-	/**
-	 * Konstruktor
-	 *
-	 * @param int $size - rozmiar cache
-	 * @return boolean
-	 */
-	private function __construct($size = 100) {
-		$this->size = $size;
-
-		return true;
+	private function __construct() {
 	}
 
 	public function check(CacheKey $key) {
@@ -99,7 +89,7 @@ class Session {
 		
 		if (isset ( $_SESSION [$this->cacheName] [$module] [$id] )) {
 			$tValue = $_SESSION [$this->cacheName] [$module] [$id] ['value'];
-			$this->maintenace($key);
+			$this->maintenance($key);
 			return $tValue;
 		} else {
 			return false;

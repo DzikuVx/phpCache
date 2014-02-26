@@ -1,18 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: pawel
- * Date: 23.12.13
- * Time: 21:26
- */
-
 namespace phpCache;
 
 require_once 'Factory.php';
 
 class FactoryTest extends \PHPUnit_Framework_TestCase {
-
-    private $aRegisteredMechanisms = array('Apc', 'File', 'Memcached', 'Session', 'Variable');
 
     public function testCreateFactory() {
         $oFactory = Factory::getInstance();
@@ -20,7 +11,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException phpCache\Exception
+     * @expectedException \phpCache\Exception
      */
     public function testUnexistingConnector() {
         $oFactory = Factory::getInstance();
@@ -41,7 +32,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase {
         $aKeys[2] = new CacheKey($oFactory);
         $aKeys[3] = new CacheKey($oFactory, 'Prop2');
 
-        foreach($aKeys as $iIndex => $oKey) {
+        foreach($aKeys as $oKey) {
             $this->assertInstanceOf('phpCache\CacheKey', $oKey);
 
             $this->assertFalse($oCache->check($oKey));

@@ -11,57 +11,31 @@ namespace phpCache;
 class File{
 
 	/**
-	 * Tablica wpisów w cache
-	 *
-	 * @var array
+	 * @var FileElement[]
 	 */
-	private $elements = array ();
+	private $elements = array();
 
 	/**
-	 * Nazwa pliku przechowującego cache
-	 *
 	 * @var string
 	 */
 	private $fileName = null;
 
 	/**
-	 * Domyślny czas ważności cache [s]
-	 *
 	 * @var int
 	 */
 	private $timeThreshold = 1200;
 
 	/**
-	 * Maksymalny rozmiar cache
-	 *
-	 * @var int
-	 */
-	private $maxSize = 2000;
-
-	/**
-	 * Obecny rozmiar
-	 *
-	 * @var int
-	 */
-	private $currentSize = 0;
-
-	/**
-	 * Czy zawartość cache zmieniła się po załadowaniu/utworzeniu
-	 *
 	 * @var boolean
 	 */
 	private $changed = false;
 
 	/**
-	 * Nazwa wpisu w $_SESSION przechowującego następny czas oczyszczania
-	 *
 	 * @var string
 	 */
-	private $cacheMaintenanceTimeName = 'CacheOverFileMaintnance';
+	private $cacheMaintenanceTimeName = 'CacheOverFileMaintenance';
 
 	/**
-	 * Czy dokonuwać kompresji pliku cache
-	 *
 	 * @var boolean
 	 */
 	private $useZip = true;
@@ -91,18 +65,12 @@ class File{
 		$this->load ();
 	}
 
-	/**
-	 * Pobranie cache
-	 */
 	private function load() {
 
 		if (file_exists ( $this->fileName )) {
 			$tCounter = 0;
 			$tFile = fopen ( $this->fileName, 'r' );
 
-			/*
-			 * Załóż blokadę na plik cache
-			 */
 			while ( ! flock ( $tFile, LOCK_SH ) ) {
 				usleep ( 5 );
 				$tCounter ++;
@@ -124,7 +92,7 @@ class File{
 
 			$tKeys = array_keys ( $this->elements );
 			foreach ( $tKeys as $tKey ) {
-				$this->maintenace ( new CacheKey($tKey) );
+				$this->maintenance ( new CacheKey($tKey) );
 			}
 				
 		}
@@ -144,9 +112,6 @@ class File{
 		if ($this->changed) {
 			$tFile = fopen ( $this->fileName, 'a' );
 
-			/*
-			 * Załóż blokadę na plik cache
-			 */
 			while ( ! flock ( $tFile, LOCK_EX ) ) {
 				usleep ( 5 );
 				$tCounter ++;
@@ -155,9 +120,6 @@ class File{
 				}
 			}
 
-			/*
-			 * Jeśli udało się założyć blokadę, zapisz elementy
-			 */
 			$tContent = serialize ( $this->elements );
 
 			ftruncate ( $tFile, 0 );
@@ -177,10 +139,11 @@ class File{
 	}
 
 	/**
-	 * Cache mainanace, removed old entries
+	 * Cache maintenance, remove old entries
 	 * @param CacheKey $key
+     * @return boolean
 	 */
-	private function maintenace(CacheKey $key) {
+	private function maintenance(CacheKey $key) {
 
 		$module = $key->getModule();
 		
@@ -192,21 +155,18 @@ class File{
 			$_SESSION [$this->cacheMaintenanceTimeName] [$module] = time ();
 		}
 
-		//Sprawdz, czy wykonać czyszczenie
 		if (time () < $_SESSION [$this->cacheMaintenanceTimeName] [$module]) {
 			return false;
 		}
 			
-		//Ustaw czas następnego czyszczenia
 		$_SESSION [$this->cacheMaintenanceTimeName] [$module] = time () + $this->timeThreshold;
 
-		//Pobierz wszystkie klucze w module
-		$keys = array_keys ( $this->elements [$module] );
+        /** @noinspection PhpParamsInspection */
+        $keys = array_keys($this->elements[$module]);
 
-		//Wykonaj pętlę po kluczach
 		foreach ( $keys as $value ) {
-			//Oczyść przeterminowane klucze
-			if (time () > $this->elements [$module] [$value]->getTime ()) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            if ($this->elements[$module][$value]->getTime() > time()) {
 				unset ( $this->elements [$module] [$value] );
 				$this->changed = true;
 			}
@@ -236,8 +196,9 @@ class File{
 	 */
 	public function get(CacheKey $key) {
 
-		if (isset ( $this->elements [$key->getModule()] [$key->getProperty()] )) {
-			$tValue = $this->elements [$key->getModule()] [$key->getProperty()]->getValue ();
+		if (!empty($this->elements[$key->getModule()] [$key->getProperty()])) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            $tValue = $this->elements[$key->getModule()] [$key->getProperty()]->getValue ();
 			return $tValue;
 		} else {
 			return false;
@@ -280,12 +241,10 @@ class File{
 		if (! isset ( $this->elements [$module] [$property] )) {
 			$this->elements [$module] [$property] = new FileElement ( $value, time () + $sessionLength );
 		} else {
-			$this->elements [$module] [$property]->set ( $value, time () + $sessionLength);
+            /** @noinspection PhpUndefinedMethodInspection */
+            $this->elements [$module] [$property]->set ( $value, time () + $sessionLength);
 		}
 
-		/*
-		 * Określ czas następnego czyszczenia cache dla tego modułu
-		 */
 		if (! isset ( $_SESSION [$this->cacheMaintenanceTimeName] [$module] )) {
 			$_SESSION [$this->cacheMaintenanceTimeName] [$module] = time () + $sessionLength;
 		}
@@ -294,8 +253,6 @@ class File{
 	}
 
 	/**
-	 * Wyczyszczenie wpisów zależnych od podanej klasy
-	 *
 	 * @param string $className
 	 */
 	public function clearClassCache($className) {
@@ -309,7 +266,6 @@ class File{
 	}
 
 	/**
-	 * Oczyszczenie całego cache
 	 */
 	public function clearAll() {
 		$this->elements = array();
@@ -318,25 +274,16 @@ class File{
 }
 
 /**
- * Klasa elementów cache współdzielonego
- *
  * @author Paweł Spychalski <pawel@spychalski.info>
  * @see http://www.spychalski.info
- * @see CacheOverFile
- * @category Common
- * @version 0.9
  */
 class FileElement{
 	/**
-	 * Wartość wpisu
-	 *
 	 * @var mixed
 	 */
 	protected $value = null;
 
 	/**
-	 * Czas ważności wpisu
-	 *
 	 * @var int
 	 */
 	protected $time = null;
