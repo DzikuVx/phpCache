@@ -90,10 +90,7 @@ class Apc {
 	 * @return mixed
 	 */
 	public function get(CacheKey $key) {
-
-		$retVal = apc_fetch($this->getKey($key));
-
-		return $retVal;
+		return apc_fetch($this->getKey($key));
 	}
 
 	/**
