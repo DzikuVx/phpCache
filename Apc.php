@@ -163,7 +163,7 @@ class Apc {
 	 * Garbage collector
 	 */
 	private function garbageCollector() {
-		$iterator = new \APCIterator('user');
+		$iterator = new \APCIterator('^user^');
 		while ($tKey = $iterator->current()) {
 
 			if (time() - $tKey['ttl'] > $tKey[self::$gcMethod]) {
@@ -179,7 +179,7 @@ class Apc {
 	 */
 	public function clearClassCache($className = null) {
 
-		$iterator = new \APCIterator('user');
+		$iterator = new \APCIterator('^user^');
 		while ($iterator->current()) {
 
 			$tKey = $iterator->key();
@@ -192,17 +192,8 @@ class Apc {
 
 	}
 
-	/**
-	 * 
-	 * Flush opcode cache
-	 * @since 2012-08-01
-	 */
-	public function flushOpcode() {
-		apc_clear_cache('opcode');
-	}
-	
 	public function clearAll() {
-		apc_clear_cache('user');
+		apc_clear_cache();
 	}
 
 	/**
