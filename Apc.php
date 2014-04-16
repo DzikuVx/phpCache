@@ -16,17 +16,6 @@ class Apc {
 	static private $sCachePrefix = 'phpCache';
 
 	/**
-	 * @var int
-	 */
-	static private $gcTimeThreshold = 30;
-
-	/**
-	 * Garbage Collector type
-	 * @var string [access_time,mtime,creation_time]
-	 */
-	private static $gcMethod = 'access_time';
-
-	/**
 	 * @var Apc
 	 */
 	private static $instance;
@@ -48,10 +37,6 @@ class Apc {
 	}
 
 	private function __construct() {
-		if (time() - $this->getGcRunTime() > self::$gcTimeThreshold) {
-			$this->setGcRunTime();
-			$this->garbageCollector();
-		}
 	}
 
 	/**
@@ -135,40 +120,6 @@ class Apc {
 		}
 
 		apc_store ( $this->getKey($key) , $value , $sessionLength);
-	}
-
-	private function getGcRunTime() {
-
-		$retVal = apc_fetch('CacheOverApcGcRunTime');
-
-		if ($retVal === false) {
-			$retVal = 0;
-		}
-
-		return $retVal;
-	}
-
-	private function setGcRunTime() {
-		@apc_store ( 'CacheOverApcGcRunTime' , time() , 86400);
-	}
-
-	public function runGarbageCollector() {
-		$this->garbageCollector();
-	}
-
-	/**
-	 * Garbage collector
-	 */
-	private function garbageCollector() {
-		$iterator = new \APCIterator('^user^');
-		while ($tKey = $iterator->current()) {
-
-			if (time() - $tKey['ttl'] > $tKey[self::$gcMethod]) {
-				apc_delete($tKey['key']);
-			}
-
-			$iterator->next();
-		}
 	}
 
 	/**
