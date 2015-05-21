@@ -1,25 +1,25 @@
 <?php
-namespace phpCache;
+namespace PhpCache;
 
-require_once 'Factory.php';
+require_once '../src/PhpCache.php';
 
-class FactoryTest extends \PHPUnit_Framework_TestCase {
+class PhpCacheTest extends \PHPUnit_Framework_TestCase {
 
     public function testCreateFactory() {
-        $oFactory = Factory::getInstance();
-        $this->assertInstanceOf('phpCache\Factory', $oFactory);
+        $oFactory = PhpCache::getInstance();
+        $this->assertInstanceOf('PhpCache\PhpCache', $oFactory);
     }
 
     /**
-     * @expectedException \phpCache\Exception
+     * @expectedException \PhpCache\Exception
      */
     public function testUnexistingConnector() {
-        $oFactory = Factory::getInstance();
+        $oFactory = PhpCache::getInstance();
         $oFactory->create('Malina');
     }
 
     private function processConnector($sName) {
-        $oFactory = Factory::getInstance();
+        $oFactory = PhpCache::getInstance();
         $oCache = $oFactory->create($sName);
 
         $this->assertInstanceOf('phpCache\\' . $sName, $oCache);

@@ -1,6 +1,6 @@
 <?php
 
-namespace phpCache;
+namespace PhpCache;
 
 /**
  * Shared cache over file system. 

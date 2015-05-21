@@ -1,6 +1,6 @@
 <?php
 
-namespace phpCache;
+namespace PhpCache;
 
 /**
  * Entries are stored in an PHP variable. They are not available between requests
@@ -22,7 +22,7 @@ class Variable {
 
 	/**
 	 * 
-	 * @return \phpCache\Variable
+	 * @return \PhpCache\Variable
 	 */
 	public static function getInstance(){
 		if (empty(self::$instance)) {

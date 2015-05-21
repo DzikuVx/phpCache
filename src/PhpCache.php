@@ -1,13 +1,13 @@
 <?php
 
-namespace phpCache;
+namespace PhpCache;
 
 /**
  * Cache method factory
  * Static
  * @author Paweł
  */
-class Factory {
+class PhpCache {
 
 	/**
 	 * Name of default caching mechanism
@@ -85,7 +85,7 @@ class Factory {
 
 	/**
 	 * get factory instance
-	 * @return Factory
+	 * @return PhpCache
 	 */
 	static public function getInstance() {
 
