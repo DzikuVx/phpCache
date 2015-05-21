@@ -45,6 +45,8 @@ class File{
 	 */
 	private static $instance;
 
+    public static $FILE_PATH = '/cache/';
+
 	/**
 	 * @return File
 	 */
@@ -61,7 +63,7 @@ class File{
 	}
 
 	private function __construct() {
-		$this->fileName = dirname ( __FILE__ ) . "/userData/" . get_class () . '.sca';
+		$this->fileName = getcwd() . self::$FILE_PATH . get_class () . '.sca';
 		$this->load ();
 	}
 
