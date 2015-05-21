@@ -38,14 +38,14 @@ class File{
 	/**
 	 * @var boolean
 	 */
-	private $useZip = true;
+	private $useZip = false;
 
 	/**
 	 * @var File
 	 */
 	private static $instance;
 
-    public static $FILE_PATH = '/cache/';
+    public static $FILE_PATH = '/cache';
 
 	/**
 	 * @return File
@@ -63,7 +63,14 @@ class File{
 	}
 
 	private function __construct() {
-		$this->fileName = getcwd() . self::$FILE_PATH . get_class () . '.sca';
+
+        $dirName = getcwd() . self::$FILE_PATH;
+
+        if (!file_exists($dirName)) {
+            mkdir($dirName);
+        }
+
+		$this->fileName = $dirName . '/phpcache.sca';
 		$this->load ();
 	}
 
