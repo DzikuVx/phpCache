@@ -1,5 +1,5 @@
 {
-  "name": "pspychalski/phpCache",
+  "name": "pspychalski/phpcache",
   "license": "MIT",
   "description": "phpCache is object PHP >=5 cache wrapper that offers similar way of handling various caching mechanisms",
   "require": {
