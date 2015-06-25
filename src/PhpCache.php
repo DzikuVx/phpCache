@@ -13,13 +13,13 @@ class PhpCache {
 	 * Name of default caching mechanism
 	 * @var string
 	 */
-	public static $sDefaultMechanism = 'Apc';
+	public static $sDefaultMechanism = 'Variable';
 	
 	/**
 	 * Array of registered and available caching mechanisms
 	 * @var array
 	 */
-	private $aRegisteredMechanisms = array('Apc', 'File', 'Memcached', 'Session', 'Variable');
+	private $aRegisteredMechanisms = array('Apc', 'File', 'Memcached', 'Session', 'Variable', 'Redis');
 	
 	/**
 	 * Array of caching method objects

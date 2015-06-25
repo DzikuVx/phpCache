@@ -228,6 +228,7 @@ class File{
 	/**
 	 * Clear whole module and all it's properties
 	 * @param CacheKey $key
+     * @depreciated
 	 */
 	function clearModule(CacheKey $key) {
 
@@ -263,6 +264,7 @@ class File{
 
 	/**
 	 * @param string $className
+     * @depreciated
 	 */
 	public function clearClassCache($className) {
 
