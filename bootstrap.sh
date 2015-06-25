@@ -184,3 +184,6 @@ mysql -uroot -proot < /var/www/webapp/sql/setup.sql
 
 # Setup Redis
 apt-get -y install redis-server
+
+# setup memcached
+sudo apt-get -y install memcached php5-memcache

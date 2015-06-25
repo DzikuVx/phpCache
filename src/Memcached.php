@@ -62,6 +62,10 @@ class Memcached{
 		$this->memcached->delete($this->getKey($key));
 	}
 
+    /**
+     * @param CacheKey $key
+     * @depreciated
+     */
 	public function clearModule(/** @noinspection PhpUnusedParameterInspection */
         CacheKey $key) {
 		$this->memcached->flush();
@@ -76,6 +80,10 @@ class Memcached{
 		$this->memcached->set($this->getKey($key), $value, null, $sessionLength);
 	}
 
+    /**
+     * @param null $className
+     * @depreciated
+     */
 	public function clearClassCache(/** @noinspection PhpUnusedParameterInspection */
         $className = null) {
 		$this->memcached->flush();

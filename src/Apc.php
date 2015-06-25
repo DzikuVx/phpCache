@@ -6,6 +6,7 @@ namespace PhpCache;
  * APC wrapper
  * @author Paweł Spychalski 2013
  * @version 2.0.2
+ * @depreciated
  */
 class Apc {
 
@@ -88,6 +89,7 @@ class Apc {
 
 	/**
 	 * @param CacheKey $key
+     * @depreciated
 	 */
 	public function clearModule(CacheKey $key) {
 
@@ -124,6 +126,7 @@ class Apc {
 
 	/**
 	 * @param string $className
+     * @depreciated
 	 */
 	public function clearClassCache($className = null) {
 

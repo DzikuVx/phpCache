@@ -1,7 +1,7 @@
 <?php
 namespace PhpCache;
 
-require_once '../src/PhpCache.php';
+require_once 'src/PhpCache.php';
 
 class PhpCacheTest extends \PHPUnit_Framework_TestCase {
 
