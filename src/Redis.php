@@ -4,20 +4,7 @@ namespace PhpCache;
 
 use Predis\Client;
 
-class Redis {
-
-    /**
-     * @var Client
-     */
-    private static $instance;
-
-    public static function getInstance() {
-        if (empty(self::$instance)) {
-            $className = __CLASS__;
-            self::$instance = new $className;
-        }
-        return self::$instance;
-    }
+class Redis extends AbstractCache {
 
     /**
      * Default cache validity time [s]
@@ -44,7 +31,7 @@ class Redis {
     static public $port = 6379;
     static public $db = 0;
 
-    private function __construct() {
+    public function __construct() {
         $this->redis = new Client(array(
             'host' => self::$host,
             'port' => self::$port,
@@ -60,7 +47,18 @@ class Redis {
      * @return mixed
      */
     public function get(CacheKey $key) {
-        return $this->redis->get($this->getKey($key));
+
+        $value = $this->redis->get($this->getKey($key));
+
+        $unserialized = @unserialize($value);
+
+        if ($unserialized !== false) {
+            $value = $unserialized;
+        } else if ($value === null) {
+            $value = false;
+        }
+
+        return $value;
     }
 
     /**
@@ -75,7 +73,8 @@ class Redis {
      * @param CacheKey $key
      * @depreciated
      */
-    public function clearModule(CacheKey $key) {
+    public function clearModule(/** @noinspection PhpUnusedParameterInspection */
+        CacheKey $key) {
         $this->redis->flushdb();
     }
 
@@ -93,6 +92,11 @@ class Redis {
         }
 
         $sKey = $this->getKey($key);
+
+        if (is_array($value) || is_object($value)) {
+            $value = serialize($value);
+        }
+
         $this->redis->set($sKey, $value);
 
         if (!empty($sessionLength) && $sessionLength > 0) {
@@ -110,14 +114,6 @@ class Redis {
 
     public function clearAll() {
         $this->redis->flushdb();
-    }
-
-    /**
-     * @param CacheKey $key
-     * @return string
-     */
-    private function getKey(CacheKey $key) {
-        return $key->getModule().'||'.$key->getProperty();
     }
 
 }

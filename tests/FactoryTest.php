@@ -101,5 +101,9 @@ class PhpCacheTest extends \PHPUnit_Framework_TestCase {
         $this->processConnector('Variable');
     }
 
+    public function testRedis() {
+        $this->processConnector('Redis');
+    }
+
 }
  

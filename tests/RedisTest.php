@@ -15,7 +15,7 @@ class RedisTest extends \PHPUnit_Framework_TestCase {
     protected $cache;
 
     protected function setUp() {
-        $this->cache = Redis::getInstance();
+        $this->cache = new Redis();
     }
 
     public function testCorrectInstance() {
@@ -57,6 +57,36 @@ class RedisTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertEquals(false, $this->cache->get($key));
         $this->assertFalse($this->cache->check($key));
+
+    }
+
+    public function testArray() {
+
+        $data = array('a' => 'a', 'b' => 'b');
+
+        $key = new CacheKey('test', rand(1,1000));
+
+        $this->cache->set($key, $data);
+
+        $val = $this->cache->get($key);
+
+        $this->assertEquals($data, $val);
+
+    }
+
+    public function testStdClass() {
+
+        $data = new \stdClass();
+        $data->a = 'a';
+        $data->b = 'b';
+
+        $key = new CacheKey('test', rand(1,1000));
+
+        $this->cache->set($key, $data);
+
+        $val = $this->cache->get($key);
+
+        $this->assertEquals($data, $val);
 
     }
 

@@ -5,47 +5,9 @@ namespace PhpCache;
 /**
  * APC wrapper
  * @author Paweł Spychalski 2013
- * @version 2.0.2
  * @depreciated
  */
-class Apc {
-
-	/**
-	 * key prefix
-	 * @var string
-	 */
-	static private $sCachePrefix = 'phpCache';
-
-	/**
-	 * @var Apc
-	 */
-	private static $instance;
-
-	public static function getInstance() {
-		if (empty(self::$instance)) {
-			$className = __CLASS__;
-			self::$instance = new $className;
-		}
-		return self::$instance;
-	}
-
-	/**
-	 * Set key prefix
-	 * @param string $prefix
-	 */
-	static public function sSetPrefix($prefix) {
-		self::$sCachePrefix = $prefix;
-	}
-
-	private function __construct() {
-	}
-
-	/**
-	 * @return string
-	 */
-	static public function sGetPrefix() {
-		return self::$sCachePrefix;
-	}
+class Apc extends AbstractCache {
 
 	/**
 	 * Default cache validity time [s]
@@ -147,11 +109,4 @@ class Apc {
 		apc_clear_cache();
 	}
 
-	/**
-	* @param CacheKey $key
-	* @return string
-	*/
-	private function getKey(CacheKey $key) {
-		return self::$sCachePrefix.'__'.$key->getModule().'||'.$key->getProperty();
-	}
 }

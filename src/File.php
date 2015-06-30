@@ -8,7 +8,7 @@ namespace PhpCache;
  * @author pawel
  *
  */
-class File{
+class File extends AbstractCache {
 
 	/**
 	 * @var FileElement[]
@@ -40,29 +40,13 @@ class File{
 	 */
 	private $useZip = false;
 
-	/**
-	 * @var File
-	 */
-	private static $instance;
-
     public static $FILE_PATH = '/cache';
-
-	/**
-	 * @return File
-	 */
-	public static function getInstance(){
-		if (empty(self::$instance)) {
-			$className = __CLASS__;
-			self::$instance = new $className;
-		}
-		return self::$instance;
-	}
 
 	public function __destruct() {
 		$this->synchronize ();
 	}
 
-	private function __construct() {
+	public function __construct() {
 
         $dirName = getcwd() . self::$FILE_PATH;
 

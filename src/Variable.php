@@ -5,34 +5,14 @@ namespace PhpCache;
 /**
  * Entries are stored in an PHP variable. They are not available between requests
  */
-class Variable {
+class Variable extends AbstractCache  {
 
 	/**
 	 * @var array
 	 */
 	private $cache = array ();
 
-	/**
-	 * @var Variable
-	 */
-	private static $instance;
-
 	public function clearAll() {
-	}
-
-	/**
-	 * 
-	 * @return \PhpCache\Variable
-	 */
-	public static function getInstance(){
-		if (empty(self::$instance)) {
-			$className = __CLASS__;
-			self::$instance = new $className;
-		}
-		return self::$instance;
-	}
-
-	private function __construct() {
 	}
 
 	/**

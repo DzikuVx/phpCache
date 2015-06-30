@@ -2,38 +2,16 @@
 
 namespace PhpCache;
 
-class Memcached{
+class Memcached extends AbstractCache {
 
-	/**
-	 * key prefix
-	 * @var string
-	 */
-	static private $sCachePrefix = 'phpCache';
-	
 	private $timeThreshold = 7200;
 
 	private $memcached = null;
 
-	/**
-	 * @var Memcached
-	 */
-	private static $instance;
-
-	/**
-	 * @return Memcached
-	 */
-	public static function getInstance(){
-		if (empty(self::$instance)) {
-			$className = __CLASS__;
-			self::$instance = new $className;
-		}
-		return self::$instance;
-	}
-
 	static public $host = '127.0.0.1';
 	static public $port = 11211;
 
-	private function __construct() {
+	public function __construct() {
 		$this->memcached = new \Memcache();
 		$this->memcached->connect(self::$host, self::$port);
 	}
@@ -91,15 +69,6 @@ class Memcached{
 
 	public function clearAll() {
 		$this->memcached->flush();
-	}
-
-	/**
-	 * Setup key for memcached
-	 * @param CacheKey $key
-	 * @return string
-	 */
-	private function getKey(CacheKey $key) {
-		return self::$sCachePrefix.'__' . $key->getModule() . '||' . $key->getProperty();
 	}
 
 }
