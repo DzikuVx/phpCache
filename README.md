@@ -2,8 +2,9 @@ PhpCache
 ========
 
 PhpCache is object PHP >=5 cache wrapper that offers similar way of handling various caching mechanisms:
-* APC
+* APC (deprecated)
 * Memcached
+* Redis
 * Filesystem (deprecated)
 * Session (deprecated)
 * Variable (temporary, not available between requests)
@@ -12,7 +13,7 @@ PhpCache is object PHP >=5 cache wrapper that offers similar way of handling var
 
 ```
 require_once 'PhpCache.php';
-\PhpCache\PhpCache::$sDefaultMechanism = 'Apc';
+\PhpCache\PhpCache::$sDefaultMechanism = 'Redis';
 $cache = \PhpCache\Factory::getInstance()->create();
 
 $key = new \PhpCache\CacheKey('myKey');

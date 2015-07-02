@@ -5,27 +5,11 @@ namespace PhpCache;
 /**
  * @deprecated
  */
-class Session {
+class Session extends AbstractCache {
 	private $currentSize = 0;
 	private $timeThreshold = 60;
 	private $cacheName = 'cache';
 	private $cacheMaintenanceTimeName = 'cacheMaintenanceTime';
-
-	/**
-	 * @var Session
-	 */
-	private static $instance;
-
-	/**
-	 * @return Session
-	 */
-	public static function getInstance(){
-		if (empty(self::$instance)) {
-			$className = __CLASS__;
-			self::$instance = new $className;
-		}
-		return self::$instance;
-	}
 
     /**
      * Cache maintenance, remove old entries
@@ -69,9 +53,6 @@ class Session {
 	 */
 	public function setTimeThreshold($timeThreshold) {
 		$this->timeThreshold = $timeThreshold;
-	}
-
-	private function __construct() {
 	}
 
 	public function check(CacheKey $key) {

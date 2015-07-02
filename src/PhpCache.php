@@ -76,7 +76,7 @@ class PhpCache {
 			$sClassName = '\phpCache\\' . $sMethod;
 
             /** @noinspection PhpUndefinedMethodInspection */
-            $this->aCacheInstance[$sMethod] = $sClassName::getInstance();
+            $this->aCacheInstance[$sMethod] = new $sClassName();
 			
 		} 
 		
