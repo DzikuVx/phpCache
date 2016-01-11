@@ -34,8 +34,7 @@ class Redis extends AbstractCache {
     public function __construct() {
         $this->redis = new Client(array(
             'host' => self::$host,
-            'port' => self::$port,
-            'database' => self::$port
+            'port' => self::$port
         ));
 
         $this->redis->select(self::$db);
