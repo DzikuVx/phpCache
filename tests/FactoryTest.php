@@ -5,6 +5,13 @@ require_once 'src/PhpCache.php';
 
 class PhpCacheTest extends \PHPUnit\Framework\TestCase {
 
+    protected function setUp(): void {
+        $oReflection = new \ReflectionClass(PhpCache::class);
+        $oProperty = $oReflection->getProperty('instance');
+        $oProperty->setAccessible(true);
+        $oProperty->setValue(null, null);
+    }
+
     public function testCreateFactory() {
         $oFactory = PhpCache::getInstance();
         $this->assertInstanceOf('PhpCache\PhpCache', $oFactory);
@@ -13,12 +20,20 @@ class PhpCacheTest extends \PHPUnit\Framework\TestCase {
     public function testUnexistingConnector() {
         $this->expectException(\PhpCache\Exception::class);
         $oFactory = PhpCache::getInstance();
-        $oFactory->create('Malina');
+        $oFactory->init('Malina');
+    }
+
+    public function testReInitialisationThrows() {
+        $oFactory = PhpCache::getInstance();
+        $oFactory->init('Variable');
+
+        $this->expectException(\PhpCache\Exception::class);
+        $oFactory->init('Variable');
     }
 
     private function processConnector($sName) {
         $oFactory = PhpCache::getInstance();
-        $oCache = $oFactory->create($sName);
+        $oCache = $oFactory->init($sName)->getCache();
 
         $this->assertInstanceOf('phpCache\\' . $sName, $oCache);
 

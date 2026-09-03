@@ -27,9 +27,9 @@ class Redis extends AbstractCache {
      */
     private $redis;
 
-    static public $host = null;
-    static public $port = null;
-    static public $db = null;
+    static public ?string $host = null;
+    static public ?int $port = null;
+    static public ?int $db = null;
 
     public function __construct() {
 

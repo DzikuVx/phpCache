@@ -12,8 +12,7 @@ PhpCache is object PHP >=8 cache wrapper that offers similar way of handling var
 
 ```
 require_once 'vendor/autoload.php';
-\PhpCache\PhpCache::$sDefaultMechanism = 'Redis';
-$cache = \PhpCache\PhpCache::getInstance()->create();
+$cache = \PhpCache\PhpCache::getInstance()->init('Redis')->getCache();
 
 $key = new \PhpCache\CacheKey('myKey');
 $cache->set($key, 'Lorem ipsum');
@@ -43,13 +42,10 @@ docker compose exec app vendor/bin/phpunit
 
 The `Redis` and `Memcached` classes pick up `REDIS_HOST`/`REDIS_PORT`/`REDIS_DB` and `MEMCACHED_HOST`/`MEMCACHED_PORT` environment variables (already set in `docker-compose.yml`) so they connect to the `redis` and `memcached` services instead of `127.0.0.1`.
 
-Host, port and (for Redis) db can also be set directly in code, which takes precedence over the environment variables:
+Host, port and (for Redis) db can also be passed directly to `init()`, which takes precedence over the environment variables:
 
 ```
-\PhpCache\Redis::$host = '10.0.0.5';
-\PhpCache\Redis::$port = 6380;
-\PhpCache\Redis::$db = 1;
+$cache = \PhpCache\PhpCache::getInstance()->init('Redis', '10.0.0.5', 6380, 1)->getCache();
 
-\PhpCache\Memcached::$host = '10.0.0.5';
-\PhpCache\Memcached::$port = 11212;
+$cache = \PhpCache\PhpCache::getInstance()->init('Memcached', '10.0.0.5', 11212)->getCache();
 ```

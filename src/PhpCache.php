@@ -22,13 +22,13 @@ class PhpCache {
 	private $aRegisteredMechanisms = array('File', 'Memcached', 'Session', 'Variable', 'Redis');
 	
 	/**
-	 * Array of caching method objects
-	 * @var array
+	 * The initialised caching mechanism object
+	 * @var File|Memcached|Session|Variable|Redis|null
 	 */
-	private $aCacheInstance = array();
+	private $oCacheInstance = null;
 
-	private static $instance;
-	
+	private static ?PhpCache $instance;
+
 	/**
 	 * Private constructor
 	 */
@@ -44,18 +44,18 @@ class PhpCache {
     }
 
 	/**
-	 * Create and return caching mechanism object according to passed name
+	 * Initialise caching mechanism according to passed name and connection settings
 	 * @param string $sMethod
-	 * @return File,Memcached,Session,Variable,Redis
+	 * @param string|null $sHost
+	 * @param int|null $iPort
+	 * @param int|null $iDatabase
+	 * @return PhpCache
      * @throws Exception
 	 */
-	public function create($sMethod = null) {
-		
-		/*
-		 * If no method passed, use default
-		 */
-		if (empty($sMethod)) {
-			$sMethod = self::$sDefaultMechanism;
+	public function init($sMethod, $sHost = null, $iPort = null, $iDatabase = null) {
+
+		if ($this->oCacheInstance !== null) {
+			throw new Exception('Caching mechanism already initialised');
 		}
 
 		/*
@@ -64,23 +64,42 @@ class PhpCache {
 		if (array_search($sMethod, $this->aRegisteredMechanisms) === false) {
 			throw new Exception('Unknown caching mechanism');
 		}
-		
-		/*
-		 * If caching mechanism not initialised, create new
-		 */
-		if (!isset($this->aCacheInstance[$sMethod])) {
 
-            /** @noinspection PhpIncludeInspection */
-            require_once dirname ( __FILE__ ) . '/' . $sMethod . '.php';
-			
-			$sClassName = '\phpCache\\' . $sMethod;
+        /** @noinspection PhpIncludeInspection */
+        require_once dirname ( __FILE__ ) . '/' . $sMethod . '.php';
 
-            /** @noinspection PhpUndefinedMethodInspection */
-            $this->aCacheInstance[$sMethod] = new $sClassName();
-			
-		} 
-		
-		return $this->aCacheInstance[$sMethod];
+		$sClassName = '\phpCache\\' . $sMethod;
+
+		if ($sHost !== null && property_exists($sClassName, 'host')) {
+			$sClassName::$host = $sHost;
+		}
+
+		if ($iPort !== null && property_exists($sClassName, 'port')) {
+			$sClassName::$port = $iPort;
+		}
+
+		if ($iDatabase !== null && property_exists($sClassName, 'db')) {
+			$sClassName::$db = $iDatabase;
+		}
+
+        /** @noinspection PhpUndefinedMethodInspection */
+        $this->oCacheInstance = new $sClassName();
+
+		return $this;
+	}
+
+	/**
+	 * Return the initialised caching mechanism object
+	 * @return File,Memcached,Session,Variable,Redis
+     * @throws Exception
+	 */
+	public function getCache() {
+
+		if ($this->oCacheInstance === null) {
+			throw new Exception('Caching mechanism not initialised, call init() first');
+		}
+
+		return $this->oCacheInstance;
 	}
 
 	/**
