@@ -1,0 +1,21 @@
+services:
+  app:
+    build: .
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MEMCACHED_HOST: memcached
+      MEMCACHED_PORT: 11211
+    depends_on:
+      - redis
+      - memcached
+    command: tail -f /dev/null
+
+  redis:
+    image: redis:7-alpine
+
+  memcached:
+    image: memcached:1.6-alpine

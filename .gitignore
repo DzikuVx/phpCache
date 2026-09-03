@@ -8,3 +8,4 @@ userData/phpCache\\File.sca
 .vagrant
 vendor
 cache
+.phpunit.result.cache

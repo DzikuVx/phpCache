@@ -1,8 +1,7 @@
 PhpCache
 ========
 
-PhpCache is object PHP >=5 cache wrapper that offers similar way of handling various caching mechanisms:
-* APC (deprecated)
+PhpCache is object PHP >=8 cache wrapper that offers similar way of handling various caching mechanisms:
 * Memcached
 * Redis
 * Filesystem (deprecated)
@@ -12,9 +11,9 @@ PhpCache is object PHP >=5 cache wrapper that offers similar way of handling var
 #Example usage
 
 ```
-require_once 'PhpCache.php';
+require_once 'vendor/autoload.php';
 \PhpCache\PhpCache::$sDefaultMechanism = 'Redis';
-$cache = \PhpCache\Factory::getInstance()->create();
+$cache = \PhpCache\PhpCache::getInstance()->create();
 
 $key = new \PhpCache\CacheKey('myKey');
 $cache->set($key, 'Lorem ipsum');
@@ -31,3 +30,15 @@ if ($cache->check($key)) {
 * check - checks if data for provided key is set
 * clear - removed data for key
 * clearAll - flushes cache
+
+#Development with Docker Compose
+
+A `docker-compose.yml` is provided with a PHP 8 app container plus Redis and Memcached services.
+
+```
+docker compose up -d
+docker compose exec app composer install
+docker compose exec app vendor/bin/phpunit
+```
+
+The `Redis` and `Memcached` classes pick up `REDIS_HOST`/`REDIS_PORT` and `MEMCACHED_HOST`/`MEMCACHED_PORT` environment variables (already set in `docker-compose.yml`) so they connect to the `redis` and `memcached` services instead of `127.0.0.1`.

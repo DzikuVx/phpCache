@@ -1,13 +1,17 @@
 {
   "name": "pspychalski/phpcache",
   "license": "MIT",
-  "description": "phpCache is object PHP >=5 cache wrapper that offers similar way of handling various caching mechanisms",
+  "description": "phpCache is object PHP >=8 cache wrapper that offers similar way of handling various caching mechanisms",
   "require": {
-    "php": ">=5.3.0",
-    "predis/predis": "1.0.1"
+    "php": ">=8.0",
+    "predis/predis": "^2.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "*"
+    "phpunit/phpunit": "^9.6"
+  },
+  "suggest": {
+    "ext-memcached": "Required to use the Memcached caching mechanism",
+    "ext-mbstring": "Required to use the File caching mechanism"
   },
   "authors": [
         {

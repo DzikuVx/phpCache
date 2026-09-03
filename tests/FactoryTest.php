@@ -3,17 +3,15 @@ namespace PhpCache;
 
 require_once 'src/PhpCache.php';
 
-class PhpCacheTest extends \PHPUnit_Framework_TestCase {
+class PhpCacheTest extends \PHPUnit\Framework\TestCase {
 
     public function testCreateFactory() {
         $oFactory = PhpCache::getInstance();
         $this->assertInstanceOf('PhpCache\PhpCache', $oFactory);
     }
 
-    /**
-     * @expectedException \PhpCache\Exception
-     */
     public function testUnexistingConnector() {
+        $this->expectException(\PhpCache\Exception::class);
         $oFactory = PhpCache::getInstance();
         $oFactory->create('Malina');
     }
@@ -54,7 +52,7 @@ class PhpCacheTest extends \PHPUnit_Framework_TestCase {
 
             $aGet = $oCache->get($oKey);
 
-            $this->assertInternalType('array', $aGet);
+            $this->assertIsArray($aGet);
 
             $this->assertArrayHasKey(1, $aGet);
             $this->assertEquals(2, $aGet[1]);
@@ -79,10 +77,6 @@ class PhpCacheTest extends \PHPUnit_Framework_TestCase {
             $oCache->clear($oKey);
         }
 
-    }
-
-    public function testApc() {
-        $this->processConnector('Apc');
     }
 
     public function testMemcached() {

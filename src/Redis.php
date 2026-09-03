@@ -19,7 +19,7 @@ class Redis extends AbstractCache {
      * @return boolean
      */
     public function check(CacheKey $key) {
-        return $this->redis->exists($this->getKey($key));
+        return (bool) $this->redis->exists($this->getKey($key));
     }
 
     /**
@@ -32,9 +32,13 @@ class Redis extends AbstractCache {
     static public $db = 0;
 
     public function __construct() {
+
+        $host = self::$host === '127.0.0.1' && getenv('REDIS_HOST') ? getenv('REDIS_HOST') : self::$host;
+        $port = self::$port === 6379 && getenv('REDIS_PORT') ? (int) getenv('REDIS_PORT') : self::$port;
+
         $this->redis = new Client(array(
-            'host' => self::$host,
-            'port' => self::$port
+            'host' => $host,
+            'port' => $port
         ));
 
         $this->redis->select(self::$db);
@@ -49,12 +53,14 @@ class Redis extends AbstractCache {
 
         $value = $this->redis->get($this->getKey($key));
 
+        if ($value === null) {
+            return false;
+        }
+
         $unserialized = @unserialize($value);
 
         if ($unserialized !== false) {
             $value = $unserialized;
-        } else if ($value === null) {
-            $value = false;
         }
 
         return $value;

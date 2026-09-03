@@ -19,7 +19,7 @@ class PhpCache {
 	 * Array of registered and available caching mechanisms
 	 * @var array
 	 */
-	private $aRegisteredMechanisms = array('Apc', 'File', 'Memcached', 'Session', 'Variable', 'Redis');
+	private $aRegisteredMechanisms = array('File', 'Memcached', 'Session', 'Variable', 'Redis');
 	
 	/**
 	 * Array of caching method objects
@@ -46,7 +46,7 @@ class PhpCache {
 	/**
 	 * Create and return caching mechanism object according to passed name
 	 * @param string $sMethod
-	 * @return Apc,File,Memcached,Session,Variable
+	 * @return File,Memcached,Session,Variable,Redis
      * @throws Exception
 	 */
 	public function create($sMethod = null) {

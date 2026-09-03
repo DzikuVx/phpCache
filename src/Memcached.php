@@ -12,12 +12,16 @@ class Memcached extends AbstractCache {
 	static public $port = 11211;
 
 	public function __construct() {
-		$this->memcached = new \Memcache();
-		$this->memcached->connect(self::$host, self::$port);
+
+		$host = self::$host === '127.0.0.1' && getenv('MEMCACHED_HOST') ? getenv('MEMCACHED_HOST') : self::$host;
+		$port = self::$port === 11211 && getenv('MEMCACHED_PORT') ? (int) getenv('MEMCACHED_PORT') : self::$port;
+
+		$this->memcached = new \Memcached();
+		$this->memcached->addServer($host, $port);
 	}
 
 	public function check(CacheKey $key) {
-		
+
 		$tValue = $this->get($key);
 
 		if ($tValue === false) {
@@ -48,14 +52,14 @@ class Memcached extends AbstractCache {
         CacheKey $key) {
 		$this->memcached->flush();
 	}
-	
+
 	public function set(CacheKey $key, $value, $sessionLength = null) {
 
 		if ($sessionLength == null) {
 			$sessionLength = $this->timeThreshold;
 		}
 
-		$this->memcached->set($this->getKey($key), $value, null, $sessionLength);
+		$this->memcached->set($this->getKey($key), $value, $sessionLength);
 	}
 
     /**

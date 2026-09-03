@@ -5,7 +5,7 @@ require_once 'vendor/autoload.php';
 require_once 'src/PhpCache.php';
 require_once 'tests/Privateer.php';
 
-class RedisTest extends \PHPUnit_Framework_TestCase {
+class RedisTest extends \PHPUnit\Framework\TestCase {
 
     use \Assets\Privateer;
 
@@ -14,7 +14,7 @@ class RedisTest extends \PHPUnit_Framework_TestCase {
      */
     protected $cache;
 
-    protected function setUp() {
+    protected function setUp(): void {
         $this->cache = new Redis();
     }
 
