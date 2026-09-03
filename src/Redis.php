@@ -76,12 +76,22 @@ class Redis extends AbstractCache {
     }
 
     /**
+     * Unset all cache entries belonging to a module
      * @param CacheKey $key
-     * @depreciated
      */
-    public function clearModule(/** @noinspection PhpUnusedParameterInspection */
-        CacheKey $key) {
-        $this->redis->flushdb();
+    public function clearModule(CacheKey $key) {
+
+        $pattern = static::$sCachePrefix . '__' . $key->getModule() . '||*';
+        $iterator = new \Predis\Collection\Iterator\Keyspace($this->redis, $pattern);
+
+        $keys = array();
+        foreach ($iterator as $moduleKey) {
+            $keys[] = $moduleKey;
+        }
+
+        if (!empty($keys)) {
+            $this->redis->del($keys);
+        }
     }
 
     /**

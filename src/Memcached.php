@@ -44,13 +44,24 @@ class Memcached extends AbstractCache {
 		$this->memcached->delete($this->getKey($key));
 	}
 
-    /**
-     * @param CacheKey $key
-     * @depreciated
-     */
-	public function clearModule(/** @noinspection PhpUnusedParameterInspection */
-        CacheKey $key) {
-		$this->memcached->flush();
+	/**
+	 * Unset all cache entries belonging to a module.
+	 *
+	 * Memcached has no way to enumerate or delete keys by pattern, so modules
+	 * are namespaced by a version number kept in a dedicated key. Bumping it
+	 * makes every previously cached entry for the module unreachable; the
+	 * stale entries themselves fall out of memcached naturally once their
+	 * own TTL expires.
+	 *
+	 * @param CacheKey $key
+	 */
+	public function clearModule(CacheKey $key) {
+
+		$versionKey = $this->getModuleVersionKey($key->getModule());
+
+		if ($this->memcached->increment($versionKey, 1) === false) {
+			$this->memcached->add($versionKey, 2);
+		}
 	}
 
 	public function set(CacheKey $key, $value, $sessionLength = null) {
@@ -73,6 +84,37 @@ class Memcached extends AbstractCache {
 
 	public function clearAll() {
 		$this->memcached->flush();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function getKey(CacheKey $key) {
+		return parent::getKey($key) . '__v' . $this->getModuleVersion($key->getModule());
+	}
+
+	/**
+	 * @param string $module
+	 * @return int
+	 */
+	private function getModuleVersion($module) {
+
+		$version = $this->memcached->get($this->getModuleVersionKey($module));
+
+		if ($version === false) {
+			$version = 1;
+			$this->memcached->add($this->getModuleVersionKey($module), $version);
+		}
+
+		return $version;
+	}
+
+	/**
+	 * @param string $module
+	 * @return string
+	 */
+	private function getModuleVersionKey($module) {
+		return static::$sCachePrefix . '__' . $module . '__version';
 	}
 
 }
