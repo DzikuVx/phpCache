@@ -41,4 +41,15 @@ docker compose exec app composer install
 docker compose exec app vendor/bin/phpunit
 ```
 
-The `Redis` and `Memcached` classes pick up `REDIS_HOST`/`REDIS_PORT` and `MEMCACHED_HOST`/`MEMCACHED_PORT` environment variables (already set in `docker-compose.yml`) so they connect to the `redis` and `memcached` services instead of `127.0.0.1`.
+The `Redis` and `Memcached` classes pick up `REDIS_HOST`/`REDIS_PORT`/`REDIS_DB` and `MEMCACHED_HOST`/`MEMCACHED_PORT` environment variables (already set in `docker-compose.yml`) so they connect to the `redis` and `memcached` services instead of `127.0.0.1`.
+
+Host, port and (for Redis) db can also be set directly in code, which takes precedence over the environment variables:
+
+```
+\PhpCache\Redis::$host = '10.0.0.5';
+\PhpCache\Redis::$port = 6380;
+\PhpCache\Redis::$db = 1;
+
+\PhpCache\Memcached::$host = '10.0.0.5';
+\PhpCache\Memcached::$port = 11212;
+```

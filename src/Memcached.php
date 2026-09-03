@@ -8,13 +8,13 @@ class Memcached extends AbstractCache {
 
 	private $memcached = null;
 
-	static public $host = '127.0.0.1';
-	static public $port = 11211;
+	static public $host = null;
+	static public $port = null;
 
 	public function __construct() {
 
-		$host = self::$host === '127.0.0.1' && getenv('MEMCACHED_HOST') ? getenv('MEMCACHED_HOST') : self::$host;
-		$port = self::$port === 11211 && getenv('MEMCACHED_PORT') ? (int) getenv('MEMCACHED_PORT') : self::$port;
+		$host = self::$host ?? (getenv('MEMCACHED_HOST') ?: '127.0.0.1');
+		$port = self::$port ?? (getenv('MEMCACHED_PORT') ? (int) getenv('MEMCACHED_PORT') : 11211);
 
 		$this->memcached = new \Memcached();
 		$this->memcached->addServer($host, $port);

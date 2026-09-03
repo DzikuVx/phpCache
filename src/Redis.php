@@ -27,21 +27,22 @@ class Redis extends AbstractCache {
      */
     private $redis;
 
-    static public $host = '127.0.0.1';
-    static public $port = 6379;
-    static public $db = 0;
+    static public $host = null;
+    static public $port = null;
+    static public $db = null;
 
     public function __construct() {
 
-        $host = self::$host === '127.0.0.1' && getenv('REDIS_HOST') ? getenv('REDIS_HOST') : self::$host;
-        $port = self::$port === 6379 && getenv('REDIS_PORT') ? (int) getenv('REDIS_PORT') : self::$port;
+        $host = self::$host ?? (getenv('REDIS_HOST') ?: '127.0.0.1');
+        $port = self::$port ?? (getenv('REDIS_PORT') ? (int) getenv('REDIS_PORT') : 6379);
+        $db = self::$db ?? (getenv('REDIS_DB') ? (int) getenv('REDIS_DB') : 0);
 
         $this->redis = new Client(array(
             'host' => $host,
             'port' => $port
         ));
 
-        $this->redis->select(self::$db);
+        $this->redis->select($db);
     }
 
     /**
