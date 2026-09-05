@@ -114,5 +114,33 @@ class PhpCacheTest extends \PHPUnit\Framework\TestCase {
         $this->processConnector('Redis');
     }
 
+    public function testDummyDoesNotCache() {
+        $oFactory = PhpCache::getInstance();
+        $oCache = $oFactory->init('Dummy')->getCache();
+
+        $this->assertInstanceOf('phpCache\Dummy', $oCache);
+
+        $oKey = new CacheKey('Test1', 'Prop1');
+
+        $this->assertFalse($oCache->check($oKey));
+
+        $oCache->set($oKey, 'test Value');
+
+        $this->assertFalse($oCache->check($oKey));
+        $this->assertFalse($oCache->get($oKey));
+
+        $oCache->clear($oKey);
+        $oCache->clearAll();
+    }
+
+    public function testDummyIsDefaultMechanism() {
+        $this->assertEquals('Dummy', PhpCache::$sDefaultMechanism);
+
+        $oFactory = PhpCache::getInstance();
+        $oCache = $oFactory->init()->getCache();
+
+        $this->assertInstanceOf('phpCache\Dummy', $oCache);
+    }
+
 }
  

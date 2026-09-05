@@ -13,17 +13,17 @@ class PhpCache {
 	 * Name of default caching mechanism
 	 * @var string
 	 */
-	public static $sDefaultMechanism = 'Variable';
-	
+	public static $sDefaultMechanism = 'Dummy';
+
 	/**
 	 * Array of registered and available caching mechanisms
 	 * @var array
 	 */
-	private $aRegisteredMechanisms = array('File', 'Memcached', 'Session', 'Variable', 'Redis');
-	
+	private $aRegisteredMechanisms = array('Dummy', 'File', 'Memcached', 'Session', 'Variable', 'Redis');
+
 	/**
 	 * The initialised caching mechanism object
-	 * @var File|Memcached|Session|Variable|Redis|null
+	 * @var Dummy|File|Memcached|Session|Variable|Redis|null
 	 */
 	private $oCacheInstance = null;
 
@@ -45,17 +45,21 @@ class PhpCache {
 
 	/**
 	 * Initialise caching mechanism according to passed name and connection settings
-	 * @param string $sMethod
+	 * @param string|null $sMethod Defaults to self::$sDefaultMechanism when omitted
 	 * @param string|null $sHost
 	 * @param int|null $iPort
 	 * @param int|null $iDatabase
 	 * @return PhpCache
      * @throws Exception
 	 */
-	public function init($sMethod, $sHost = null, $iPort = null, $iDatabase = null) {
+	public function init($sMethod = null, $sHost = null, $iPort = null, $iDatabase = null) {
 
 		if ($this->oCacheInstance !== null) {
 			throw new Exception('Caching mechanism already initialised');
+		}
+
+		if ($sMethod === null) {
+			$sMethod = static::$sDefaultMechanism;
 		}
 
 		/*
