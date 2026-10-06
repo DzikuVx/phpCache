@@ -90,7 +90,7 @@ class Memcached extends AbstractCache {
 	 * @inheritDoc
 	 */
 	protected function getKey(CacheKey $key) {
-		return parent::getKey($key) . '__v' . $this->getModuleVersion($key->getModule());
+		return parent::getKey($key) . ':v' . $this->getModuleVersion($key->getModule());
 	}
 
 	/**
@@ -114,7 +114,7 @@ class Memcached extends AbstractCache {
 	 * @return string
 	 */
 	private function getModuleVersionKey($module) {
-		return static::$sCachePrefix . '__' . $module . '__version';
+		return static::$sCachePrefix . ':' . $module . ':version';
 	}
 
 }

@@ -81,7 +81,7 @@ class Redis extends AbstractCache {
      */
     public function clearModule(CacheKey $key) {
 
-        $pattern = static::$sCachePrefix . '__' . $key->getModule() . '||*';
+        $pattern = static::$sCachePrefix . ':' . $key->getModule() . ':*';
         $iterator = new \Predis\Collection\Iterator\Keyspace($this->redis, $pattern);
 
         $keys = array();

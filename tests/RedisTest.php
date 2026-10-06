@@ -27,6 +27,40 @@ class RedisTest extends \PHPUnit\Framework\TestCase {
         $this->assertInstanceOf('Predis\Client', $data);
     }
 
+    public function testKeyFormat() {
+        $key = new CacheKey('test', 'prop');
+
+        $this->assertEquals('PhpCache:test:prop', self::callMethod($this->cache, 'getKey', array($key)));
+    }
+
+    public function testKeyStoredWithColonSeparator() {
+        $key = new CacheKey('test', rand(1,1000));
+        $this->cache->set($key, 'Lorem ipsum');
+
+        $redis = self::getProperty($this->cache, 'redis');
+        $this->assertEquals(1, $redis->exists('PhpCache:test:' . $key->getProperty()));
+
+        $this->cache->clear($key);
+    }
+
+    public function testClearModule() {
+        $key1 = new CacheKey('test', 'prop1');
+        $key2 = new CacheKey('test', 'prop2');
+        $other = new CacheKey('other', 'prop1');
+
+        $this->cache->set($key1, 'a');
+        $this->cache->set($key2, 'b');
+        $this->cache->set($other, 'c');
+
+        $this->cache->clearModule($key1);
+
+        $this->assertFalse($this->cache->check($key1));
+        $this->assertFalse($this->cache->check($key2));
+        $this->assertTrue($this->cache->check($other));
+
+        $this->cache->clear($other);
+    }
+
     public function testFlush() {
         $key = new CacheKey('test', rand(1,1000));
         $this->cache->set($key, 'Lorem ipsum');

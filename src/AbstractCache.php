@@ -20,7 +20,7 @@ abstract class AbstractCache
      */
     protected function getKey(CacheKey $key)
     {
-        return static::$sCachePrefix . '__' . $key->getModule() . '||' . $key->getProperty();
+        return static::$sCachePrefix . ':' . $key->getModule() . ':' . $key->getProperty();
     }
 
     /**
