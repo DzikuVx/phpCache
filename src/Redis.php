@@ -81,7 +81,7 @@ class Redis extends AbstractCache {
      */
     public function clearModule(CacheKey $key) {
 
-        $pattern = static::$sCachePrefix . ':' . $key->getModule() . ':*';
+        $pattern = self::escapePattern(static::$sCachePrefix) . ':' . self::escapePattern($key->getModule()) . ':*';
         $iterator = new \Predis\Collection\Iterator\Keyspace($this->redis, $pattern);
 
         $keys = array();
@@ -92,6 +92,19 @@ class Redis extends AbstractCache {
         if (!empty($keys)) {
             $this->redis->del($keys);
         }
+    }
+
+    /**
+     * Escape Redis glob metacharacters (\ * ? [ ]) so the string is matched literally.
+     * Module names often contain backslashes (namespaced class names), which Redis
+     * would otherwise treat as escapes. All characters are escaped in a single pass
+     * so the added backslashes are not escaped again.
+     *
+     * @param string $value
+     * @return string
+     */
+    private static function escapePattern($value) {
+        return preg_replace('/[\\\\*?\[\]]/', '\\\\$0', $value);
     }
 
     /**

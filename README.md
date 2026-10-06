@@ -49,3 +49,9 @@ $cache = \PhpCache\PhpCache::getInstance()->init('Redis', '10.0.0.5', 6380, 1)->
 
 $cache = \PhpCache\PhpCache::getInstance()->init('Memcached', '10.0.0.5', 11212)->getCache();
 ```
+
+#Changelog
+
+## 3.0.1
+* Fixed `Redis::clearModule()` silently deleting nothing (or deleting the wrong keys) when the module name or the prefix set with `sSetPrefix()` contains Redis glob characters (`\ * ? [ ]`). This affected every module created from a namespaced class, e.g. `new CacheKey($object)` or `new CacheKey('Gameplay\Items\JumpNode')`. Key format is unchanged, so 3.0.1 reads and writes the same keys as 3.0.0.
+* Known limitation: keys are stored as `<prefix>:<module>:<property>`, so `clearModule()` on Redis also clears modules that start with the same name followed by a colon (clearing `Foo` also clears `Foo::bar`).
