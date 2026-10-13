@@ -4,7 +4,7 @@
   "description": "phpCache is object PHP >=8 cache wrapper that offers similar way of handling various caching mechanisms",
   "require": {
     "php": ">=8.0",
-    "predis/predis": "^2.0"
+    "predis/predis": "^3.7"
   },
   "require-dev": {
     "phpunit/phpunit": "^9.6"
