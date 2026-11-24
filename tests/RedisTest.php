@@ -276,6 +276,68 @@ class RedisTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testClientPrefixesKeys() {
+
+        $client = Redis::sGetClient();
+        $client->set('raw:key', 'v');
+
+        $redis = self::getProperty($this->cache, 'redis');
+        $this->assertEquals('v', $redis->get('PhpCache:raw:key'));
+        $this->assertEquals('v', $client->get('raw:key'));
+
+        $client->del('raw:key');
+        $this->assertEquals(0, $redis->exists('PhpCache:raw:key'));
+    }
+
+    public function testClientPrefixesEvalKeys() {
+
+        $client = Redis::sGetClient();
+        $client->eval("return redis.call('SET', KEYS[1], ARGV[1])", 1, 'raw:eval', 'x');
+
+        $redis = self::getProperty($this->cache, 'redis');
+        $this->assertEquals('x', $redis->get('PhpCache:raw:eval'));
+
+        $client->del('raw:eval');
+    }
+
+    public function testClientSeesCacheEntries() {
+
+        $key = new CacheKey('test', 'shared');
+        $this->cache->set($key, 'from cache');
+
+        $this->assertEquals('from cache', Redis::sGetClient()->get('test:shared'));
+
+        $this->cache->clear($key);
+    }
+
+    public function testClientFollowsPrefixChange() {
+
+        Redis::sSetPrefix('Other');
+        try {
+            Redis::sGetClient()->set('raw:prefixed', '1');
+
+            $redis = self::getProperty($this->cache, 'redis');
+            $this->assertEquals('1', $redis->get('Other:raw:prefixed'));
+
+            Redis::sGetClient()->del('raw:prefixed');
+        } finally {
+            Redis::sSetPrefix('PhpCache');
+        }
+    }
+
+    public function testClientCanBeReplaced() {
+
+        $fake = new \Predis\Client();
+        Redis::sSetClient($fake);
+        try {
+            $this->assertSame($fake, Redis::sGetClient());
+        } finally {
+            Redis::sSetClient(null);
+        }
+
+        $this->assertNotSame($fake, Redis::sGetClient());
+    }
+
     public function getSetProvider() {
         return array(
             array(true, true),

@@ -50,7 +50,23 @@ $cache = \PhpCache\PhpCache::getInstance()->init('Redis', '10.0.0.5', 6380, 1)->
 $cache = \PhpCache\PhpCache::getInstance()->init('Memcached', '10.0.0.5', 11212)->getCache();
 ```
 
+## Raw Redis client
+
+For commands the cache interface doesn't cover (`SET NX PX`, `INCR`, hashes, sorted sets, `EVAL`, pipelines), `Redis::sGetClient()` returns a Predis client with the same connection settings. Every key it touches gets the cache prefix, so pass keys without it:
+
+```php
+\PhpCache\AbstractCache::sSetPrefix('staging');
+\PhpCache\Redis::sGetClient()->set('lock:worker', $id, 'NX', 'PX', 5000); // key "staging:lock:worker"
+```
+
+Predis doesn't prefix `SCAN` patterns, and keys returned by `SCAN` and `KEYS` include the prefix: strip it before passing them back to the client. `Redis::sSetClient($client)` replaces the client (e.g. with a fake in tests); `null` goes back to a real connection. `Redis::$timeout` sets the connect and read/write timeout of both the cache and this client.
+
 #Changelog
+
+## 3.1.0
+* Added `Redis::sGetClient()`: a Predis client that prefixes every key with the cache prefix, for commands the cache interface doesn't cover. `Redis::sSetClient()` replaces it in tests.
+* Added `Redis::$timeout` (connect and read/write timeout, seconds).
+* The database number is passed as a Predis connection parameter, so the cache connects on first use instead of in the constructor.
 
 ## 3.0.1
 * Fixed `Redis::clearModule()` silently deleting nothing (or deleting the wrong keys) when the module name or the prefix set with `sSetPrefix()` contains Redis glob characters (`\ * ? [ ]`). This affected every module created from a namespaced class, e.g. `new CacheKey($object)` or `new CacheKey('Gameplay\Items\JumpNode')`. Key format is unchanged, so 3.0.1 reads and writes the same keys as 3.0.0.
